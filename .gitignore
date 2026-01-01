@@ -1,0 +1,67 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# Visual Studio Code related
+.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/
+/coverage/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio related
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# Windows related
+/windows/flutter/ephemeral/
+Visual Studio.bak/
+build/
+*.exe
+*.dll
+*.pdb
+
+# Linux related
+/linux/flutter/ephemeral/
+
+# MacOS related
+/macos/Flutter/ephemeral/
+.last_build_id
+
+# Waveform specific
+*.bin.bak
+temp/
+!waveform.bin
+
+# Kernel Reference Source
+friendlyarm*/
