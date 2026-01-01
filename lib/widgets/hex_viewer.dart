@@ -44,6 +44,8 @@ class _HexViewerState extends State<HexViewer> {
     super.dispose();
   }
 
+  static const double _rowHeight = 22.0;
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -150,9 +152,9 @@ class _HexViewerState extends State<HexViewer> {
         child: ListView.builder(
           controller: _scrollController,
           itemCount: rowCount,
-          itemExtent: 20,
+          itemExtent: _rowHeight,
           itemBuilder: (context, index) {
-            return _buildHexRow(index);
+            return RepaintBoundary(child: _buildHexRow(index));
           },
         ),
       ),
@@ -340,7 +342,7 @@ class _HexViewerState extends State<HexViewer> {
       // Scroll to the offset
       final rowIndex = offset ~/ widget.bytesPerRow;
       _scrollController.animateTo(
-        rowIndex * 24.0,
+        rowIndex * _rowHeight,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut,
       );

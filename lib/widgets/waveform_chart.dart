@@ -193,13 +193,18 @@ class _WaveformChartState extends State<WaveformChart>
                             ? 200
                             : constraints.maxHeight,
                       ),
-                      child: CustomPaint(
-                        size: Size(constraints.maxWidth, constraints.maxHeight),
-                        painter: WaveformPainter(
-                          voltages: provider.currentSequence?.data ?? [],
-                          animationProgress: _animation.value,
-                          showGrid: _showGrid,
-                          showLabels: _showLabels,
+                      child: RepaintBoundary(
+                        child: CustomPaint(
+                          size: Size(
+                            constraints.maxWidth,
+                            constraints.maxHeight,
+                          ),
+                          painter: WaveformPainter(
+                            voltages: provider.currentSequence?.data ?? [],
+                            animationProgress: _animation.value,
+                            showGrid: _showGrid,
+                            showLabels: _showLabels,
+                          ),
                         ),
                       ),
                     ),

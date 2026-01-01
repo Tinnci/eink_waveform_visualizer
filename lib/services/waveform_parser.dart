@@ -102,8 +102,9 @@ class WaveformParser {
       final modeEntry = byteData.getUint32(modeOffset, Endian.little);
       final modeDataOffset = modeEntry & 0xFFFFFF; // 3-byte address
 
-      if (modeDataOffset + (temperatureIndex * 4) + 4 > data.length)
+      if (modeDataOffset + (temperatureIndex * 4) + 4 > data.length) {
         return null;
+      }
 
       // Read temperature entry
       final tempOffset = modeDataOffset + (temperatureIndex * 4);

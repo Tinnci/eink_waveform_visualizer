@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../models/models.dart';
 import '../providers/providers.dart';
 import '../theme/app_theme.dart';
 import '../widgets/widgets.dart';
@@ -8,6 +9,10 @@ import '../widgets/widgets.dart';
 /// Main home screen of the waveform visualizer
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  static void showAbout(BuildContext context) {
+    showDialog(context: context, builder: (context) => const _AboutDialog());
+  }
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -29,75 +34,133 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<WaveformProvider>();
+    final width = MediaQuery.sizeOf(context).width;
+    final isNarrow = width < 900;
 
     return Scaffold(
       backgroundColor: AppTheme.surfaceDark,
-      appBar: AppBar(
-        backgroundColor: AppTheme.surfaceDark,
-        elevation: 0,
-        title: Row(
-          children: [
-            const Icon(Icons.waves, color: AppTheme.accentGreen, size: 20),
-            const SizedBox(width: 8),
-            const Text(
-              'E-Ink Waveform Visualizer',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.textPrimary,
-              ),
-            ),
-            if (provider.currentFile != null) ...[
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppTheme.cardDark,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  provider.currentFile!.fileName,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: AppTheme.textSecondary,
-                  ),
-                ),
-              ),
-            ],
-          ],
-        ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Container(color: AppTheme.borderDark, height: 1),
-        ),
-      ),
+      appBar: _HomeAppBar(currentFile: provider.currentFile),
+      drawer: isNarrow
+          ? Drawer(
+              width: 300,
+              backgroundColor: AppTheme.primaryDark,
+              child: const SafeArea(child: _HomeSidebar()),
+            )
+          : null,
       body: Row(
         children: [
-          _buildNavigationRail(),
+          Builder(
+            builder: (context) => _HomeNavigationRail(
+              selectedIndex: _selectedTab,
+              isSidebarVisible: isNarrow ? false : _isSidebarVisible,
+              onTabSelected: (index) => setState(() => _selectedTab = index),
+              onToggleSidebar: () {
+                if (isNarrow) {
+                  Scaffold.of(context).openDrawer();
+                } else {
+                  setState(() => _isSidebarVisible = !_isSidebarVisible);
+                }
+              },
+            ),
+          ),
           const VerticalDivider(width: 1),
-          if (_isSidebarVisible) SizedBox(width: 280, child: _buildSidebar()),
-          if (_isSidebarVisible) const VerticalDivider(width: 1),
-          Expanded(child: _buildMainContent(provider)),
+          if (!isNarrow && _isSidebarVisible)
+            const SizedBox(width: 280, child: _HomeSidebar()),
+          if (!isNarrow && _isSidebarVisible) const VerticalDivider(width: 1),
+          Expanded(
+            child: _HomeMainContent(
+              selectedTab: _selectedTab,
+              provider: provider,
+              onTabChanged: (index) => setState(() => _selectedTab = index),
+            ),
+          ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildNavigationRail() {
+class _HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
+  final WaveformFile? currentFile;
+
+  const _HomeAppBar({this.currentFile});
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      backgroundColor: AppTheme.surfaceDark,
+      elevation: 0,
+      title: Row(
+        children: [
+          const Icon(Icons.waves, color: AppTheme.accentGreen, size: 20),
+          const SizedBox(width: 8),
+          const Text(
+            'E-Ink Waveform Visualizer',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.textPrimary,
+            ),
+          ),
+          if (currentFile != null) ...[
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppTheme.cardDark,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                currentFile!.fileName,
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: AppTheme.textSecondary,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+      bottom: PreferredSize(
+        preferredSize: const Size.fromHeight(1),
+        child: Container(color: AppTheme.borderDark, height: 1),
+      ),
+    );
+  }
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight + 1);
+}
+
+class _HomeNavigationRail extends StatelessWidget {
+  final int selectedIndex;
+  final bool isSidebarVisible;
+  final ValueChanged<int> onTabSelected;
+  final VoidCallback onToggleSidebar;
+
+  const _HomeNavigationRail({
+    required this.selectedIndex,
+    required this.isSidebarVisible,
+    required this.onTabSelected,
+    required this.onToggleSidebar,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return NavigationRail(
-      selectedIndex: _selectedTab,
-      onDestinationSelected: (index) => setState(() => _selectedTab = index),
+      selectedIndex: selectedIndex,
+      onDestinationSelected: onTabSelected,
       backgroundColor: AppTheme.surfaceDark,
       labelType: NavigationRailLabelType.none,
       leading: Column(
         children: [
           IconButton(
             icon: Icon(
-              _isSidebarVisible ? Icons.menu_open : Icons.menu,
+              isSidebarVisible ? Icons.menu_open : Icons.menu,
               color: AppTheme.textSecondary,
             ),
-            onPressed: () =>
-                setState(() => _isSidebarVisible = !_isSidebarVisible),
+            onPressed: onToggleSidebar,
+            tooltip: 'Toggle Sidebar',
           ),
           const SizedBox(height: 8),
         ],
@@ -121,8 +184,13 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
     );
   }
+}
 
-  Widget _buildSidebar() {
+class _HomeSidebar extends StatelessWidget {
+  const _HomeSidebar();
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       color: AppTheme.primaryDark,
       child: const Padding(
@@ -137,67 +205,36 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+}
 
-  Widget _buildMainContent(WaveformProvider provider) {
+class _HomeMainContent extends StatelessWidget {
+  final int selectedTab;
+  final WaveformProvider provider;
+  final ValueChanged<int> onTabChanged;
+
+  const _HomeMainContent({
+    required this.selectedTab,
+    required this.provider,
+    required this.onTabChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       children: [
-        _buildToolBar(provider),
+        _HomeToolbar(title: _getTabTitle(selectedTab), provider: provider),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.all(12),
-            child: _buildTabContent(provider),
+            child: _buildTabContent(context),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildToolBar(WaveformProvider provider) {
-    return Container(
-      height: 48,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: const BoxDecoration(
-        color: AppTheme.surfaceDark,
-        border: Border(bottom: BorderSide(color: AppTheme.borderDark)),
-      ),
-      child: Row(
-        children: [
-          Text(
-            _getTabTitle(),
-            style: const TextStyle(fontWeight: FontWeight.w600),
-          ),
-          const Spacer(),
-          if (provider.isLoading)
-            const SizedBox(
-              width: 16,
-              height: 16,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
-          const SizedBox(width: 16),
-          _buildToolbarButton(
-            icon: Icons.folder_open,
-            label: 'Open',
-            onPressed: provider.loadFile,
-          ),
-          const SizedBox(width: 8),
-          _buildToolbarButton(
-            icon: Icons.download,
-            label: 'Export',
-            onPressed: () => _exportWaveform(context, provider),
-          ),
-          const SizedBox(width: 8),
-          _buildToolbarButton(
-            icon: Icons.help_outline,
-            label: 'About',
-            onPressed: () => _showAboutDialog(context),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _getTabTitle() {
-    switch (_selectedTab) {
+  String _getTabTitle(int index) {
+    switch (index) {
       case 0:
         return 'Waveform Analysis';
       case 1:
@@ -207,6 +244,119 @@ class _HomeScreenState extends State<HomeScreen> {
       default:
         return '';
     }
+  }
+
+  Widget _buildTabContent(BuildContext context) {
+    switch (selectedTab) {
+      case 0:
+        return const WaveformChart();
+      case 1:
+        return provider.hasFile
+            ? HexViewer(
+                data: provider.currentFile!.rawData,
+                offset: provider.hexViewOffset,
+                onOffsetChanged: (v) =>
+                    context.read<SelectionProvider>().setHexViewOffset(v),
+              )
+            : const _EmptyStatePlaceholder(
+                icon: Icons.code,
+                message: 'No file loaded',
+              );
+      case 2:
+        return provider.hasFile
+            ? _LutMatrixView(
+                provider: provider,
+                onTransitionSelected: () => onTabChanged(0),
+              )
+            : const _EmptyStatePlaceholder(
+                icon: Icons.table_chart,
+                message: 'No file loaded',
+              );
+      default:
+        return const WaveformChart();
+    }
+  }
+}
+
+class _EmptyStatePlaceholder extends StatelessWidget {
+  final IconData icon;
+  final String message;
+
+  const _EmptyStatePlaceholder({required this.icon, required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 64,
+              color: AppTheme.textMuted.withValues(alpha: 0.5),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              message,
+              style: const TextStyle(
+                fontSize: 16,
+                color: AppTheme.textSecondary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _HomeToolbar extends StatelessWidget {
+  final String title;
+  final WaveformProvider provider;
+
+  const _HomeToolbar({required this.title, required this.provider});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 48,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: const BoxDecoration(
+        color: AppTheme.surfaceDark,
+        border: Border(bottom: BorderSide(color: AppTheme.borderDark)),
+      ),
+      child: Row(
+        children: [
+          Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+          const Spacer(),
+          if (provider.isLoading)
+            const SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          const SizedBox(width: 16),
+          _ToolbarButton(
+            icon: Icons.folder_open,
+            label: 'Open',
+            onPressed: provider.loadFile,
+          ),
+          const SizedBox(width: 8),
+          _ToolbarButton(
+            icon: Icons.download,
+            label: 'Export',
+            onPressed: () => _exportWaveform(context, provider),
+          ),
+          const SizedBox(width: 8),
+          _ToolbarButton(
+            icon: Icons.help_outline,
+            label: 'About',
+            onPressed: () => _showAboutDialog(context),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _exportWaveform(
@@ -228,11 +378,27 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Widget _buildToolbarButton({
-    required IconData icon,
-    required String label,
-    required VoidCallback onPressed,
-  }) {
+  void _showAboutDialog(BuildContext context) {
+    // Note: Reusing the existing _showAboutDialog logic but potentially moving it later
+    // For now, I'll keep the static reference or move the logic here.
+    // I will call a static method or keep it in the main class for brevity in this step.
+    HomeScreen.showAbout(context);
+  }
+}
+
+class _ToolbarButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onPressed;
+
+  const _ToolbarButton({
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return InkWell(
       onTap: onPressed,
       borderRadius: BorderRadius.circular(6),
@@ -260,73 +426,19 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+}
 
-  Widget _buildTabContent(WaveformProvider provider) {
-    switch (_selectedTab) {
-      case 0:
-        return const WaveformChart();
-      case 1:
-        return provider.hasFile
-            ? HexViewer(
-                data: provider.currentFile!.rawData,
-                offset: provider.hexViewOffset,
-                onOffsetChanged: (v) =>
-                    context.read<SelectionProvider>().setHexViewOffset(v),
-              )
-            : _buildEmptyHexView();
-      case 2:
-        return _buildLutMatrix(provider);
-      default:
-        return const WaveformChart();
-    }
-  }
+class _LutMatrixView extends StatelessWidget {
+  final WaveformProvider provider;
+  final VoidCallback onTransitionSelected;
 
-  Widget _buildEmptyHexView() {
-    return Card(
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.code,
-              size: 64,
-              color: AppTheme.textMuted.withValues(alpha: 0.5),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'No file loaded',
-              style: TextStyle(fontSize: 16, color: AppTheme.textSecondary),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  const _LutMatrixView({
+    required this.provider,
+    required this.onTransitionSelected,
+  });
 
-  Widget _buildLutMatrix(WaveformProvider provider) {
-    if (!provider.hasFile) {
-      return Card(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.table_chart,
-                size: 64,
-                color: AppTheme.textMuted.withValues(alpha: 0.5),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'No file loaded',
-                style: TextStyle(fontSize: 16, color: AppTheme.textSecondary),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    // Build a 16x16 LUT matrix visualization
+  @override
+  Widget build(BuildContext context) {
     return Card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -364,18 +476,32 @@ class _HomeScreenState extends State<HomeScreen> {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(16),
-              child: _buildMatrixGrid(provider),
+              child: _MatrixGrid(
+                provider: provider,
+                onTransitionSelected: onTransitionSelected,
+              ),
             ),
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildMatrixGrid(WaveformProvider provider) {
+class _MatrixGrid extends StatelessWidget {
+  final WaveformProvider provider;
+  final VoidCallback onTransitionSelected;
+
+  const _MatrixGrid({
+    required this.provider,
+    required this.onTransitionSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       children: [
-        // Header row (To Gray)
+        // Header row
         Row(
           children: [
             const SizedBox(width: 40, height: 24),
@@ -396,7 +522,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
         const SizedBox(height: 4),
-        // Matrix rows
         Expanded(
           child: ListView.builder(
             itemCount: 16,
@@ -420,7 +545,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         provider.selectedFromGray == fromGray &&
                         provider.selectedToGray == toGray;
 
-                    // Calculate intensity based on transition
                     final diff = (toGray - fromGray).abs();
                     final color = Color.lerp(
                       AppTheme.surfaceDark,
@@ -435,11 +559,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           final selection = context.read<SelectionProvider>();
                           selection.setFromGray(fromGray);
                           selection.setToGray(toGray);
-                          setState(() => _selectedTab = 0);
+                          onTransitionSelected();
                         },
                         child: Container(
                           margin: const EdgeInsets.all(1),
-                          height: 30, // Give it a fixed height or min height
+                          height: 30,
                           decoration: BoxDecoration(
                             color: color,
                             borderRadius: BorderRadius.circular(2),
@@ -460,6 +584,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         const SizedBox(height: 8),
+        // Legend
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -472,7 +597,7 @@ class _HomeScreenState extends State<HomeScreen> {
               width: 100,
               height: 8,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
+                gradient: const LinearGradient(
                   colors: [AppTheme.surfaceDark, AppTheme.accentGreen],
                 ),
                 borderRadius: BorderRadius.circular(4),
@@ -488,187 +613,174 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
     );
   }
+}
 
-  void _showAboutDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppTheme.cardDark,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: AppTheme.borderDark),
-        ),
-        title: const Row(
-          children: [
-            Icon(Icons.waves, color: AppTheme.accentGreen),
-            SizedBox(width: 12),
-            Flexible(
-              child: Text(
-                'E-Ink Waveform Visualizer',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.textPrimary,
-                ),
-                overflow: TextOverflow.ellipsis,
+class _AboutDialog extends StatelessWidget {
+  const _AboutDialog();
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: AppTheme.cardDark,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(color: AppTheme.borderDark),
+      ),
+      title: const Row(
+        children: [
+          Icon(Icons.waves, color: AppTheme.accentGreen),
+          SizedBox(width: 12),
+          Flexible(
+            child: Text(
+              'E-Ink Waveform Visualizer',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.textPrimary,
               ),
+              overflow: TextOverflow.ellipsis,
             ),
-          ],
-        ),
-        content: SingleChildScrollView(
-          child: SizedBox(
-            width: 450,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // About section
-                const Text(
-                  'About',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.accentGreen,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'A professional tool for parsing and visualizing E-Ink waveform files '
-                  'used in electronic paper displays. Supports PVI (E-Ink Corp) and RKF (Rockchip) formats.',
-                  style: TextStyle(fontSize: 13, color: AppTheme.textSecondary),
-                ),
-
-                const SizedBox(height: 20),
-                const Divider(height: 1),
-                const SizedBox(height: 16),
-
-                // Technical Info
-                const Text(
-                  'Technical Details',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.accentBlue,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  '• Header parsing: Version, checksum, temperature segments\n'
-                  '• LUT decoding: 16x16 gray level transition lookup tables\n'
-                  '• Voltage sequence: +15V, 0V, -15V patterns per frame\n'
-                  '• Export support: CSV format for further analysis',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.textSecondary,
-                    height: 1.5,
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-                const Divider(height: 1),
-                const SizedBox(height: 16),
-
-                // Open Source Credits
-                const Text(
-                  'Open Source Credits',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.accentOrange,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Waveform parsing logic is based on reverse engineering of:\n'
-                  '• Rockchip EBC driver source code (kernel-rockchip)\n'
-                  '• FriendlyARM kernel patches for EPD LUT handling\n'
-                  '• pvi_waveform_v8.S assembly implementation',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.textSecondary,
-                    height: 1.5,
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-                const Divider(height: 1),
-                const SizedBox(height: 16),
-
-                // License & Repository
-                const Text(
-                  'License & Repository',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.accentPurple,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                _buildLinkRow(
-                  icon: Icons.description,
-                  label: 'License',
-                  value: 'MIT License',
-                ),
-                const SizedBox(height: 6),
-                _buildLinkRow(
-                  icon: Icons.code,
-                  label: 'Repository',
-                  value: 'github.com/Tinnci/eink_waveform_visualizer',
-                ),
-                const SizedBox(height: 6),
-                _buildLinkRow(
-                  icon: Icons.person,
-                  label: 'Author',
-                  value: 'shiso <shisoratsu@icloud.com>',
-                ),
-
-                const SizedBox(height: 20),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppTheme.surfaceDark,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppTheme.borderDark),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(
-                        Icons.info_outline,
-                        color: AppTheme.textMuted,
-                        size: 16,
-                      ),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'This software is provided "as is" without warranty of any kind.',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: AppTheme.textMuted,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
           ),
         ],
       ),
+      content: SingleChildScrollView(
+        child: SizedBox(
+          width: 450,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // About section
+              const Text(
+                'About',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.accentGreen,
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'A professional tool for parsing and visualizing E-Ink waveform files '
+                'used in electronic paper displays. Supports PVI (E-Ink Corp) and RKF (Rockchip) formats.',
+                style: TextStyle(fontSize: 13, color: AppTheme.textSecondary),
+              ),
+              const SizedBox(height: 20),
+              const Divider(height: 1),
+              const SizedBox(height: 16),
+              // Technical Info
+              const Text(
+                'Technical Details',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.accentBlue,
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                '• Header parsing: Version, checksum, temperature segments\n'
+                '• LUT decoding: 16x16 gray level transition lookup tables\n'
+                '• Voltage sequence: +15V, 0V, -15V patterns per frame\n'
+                '• Export support: CSV format for further analysis',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppTheme.textSecondary,
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Divider(height: 1),
+              const SizedBox(height: 16),
+              // Open Source Credits
+              const Text(
+                'Open Source Credits',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.accentOrange,
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Waveform parsing logic is based on reverse engineering of:\n'
+                '• Rockchip EBC driver source code (kernel-rockchip)\n'
+                '• FriendlyARM kernel patches for EPD LUT handling\n'
+                '• pvi_waveform_v8.S assembly implementation',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppTheme.textSecondary,
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Divider(height: 1),
+              const SizedBox(height: 16),
+              // License & Repository
+              const Text(
+                'License & Repository',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.accentPurple,
+                ),
+              ),
+              const SizedBox(height: 8),
+              _buildLinkRow(Icons.description, 'License', 'MIT License'),
+              const SizedBox(height: 6),
+              _buildLinkRow(
+                Icons.code,
+                'Repository',
+                'github.com/Tinnci/eink_waveform_visualizer',
+              ),
+              const SizedBox(height: 6),
+              _buildLinkRow(
+                Icons.person,
+                'Author',
+                'shiso <shisoratsu@icloud.com>',
+              ),
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppTheme.surfaceDark,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppTheme.borderDark),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      color: AppTheme.textMuted,
+                      size: 16,
+                    ),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'This software is provided "as is" without warranty of any kind.',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: AppTheme.textMuted,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Close'),
+        ),
+      ],
     );
   }
 
-  Widget _buildLinkRow({
-    required IconData icon,
-    required String label,
-    required String value,
-  }) {
+  Widget _buildLinkRow(IconData icon, String label, String value) {
     return Row(
       children: [
         Icon(icon, size: 14, color: AppTheme.textMuted),
