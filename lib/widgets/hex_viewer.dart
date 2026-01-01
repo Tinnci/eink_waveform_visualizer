@@ -69,30 +69,16 @@ class _HexViewerState extends State<HexViewer> {
         children: [
           const Icon(Icons.code, color: AppTheme.accentBlue, size: 18),
           const SizedBox(width: 8),
-          const Text(
-            'Hex Viewer',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: AppTheme.textPrimary,
-            ),
-          ),
+          const Text('Hex Viewer', style: AppTypography.sectionTitle),
           const Spacer(),
           // Offset input
-          const Text(
-            'Offset: ',
-            style: TextStyle(fontSize: 11, color: AppTheme.textSecondary),
-          ),
+          const Text('Offset: ', style: AppTypography.caption),
           SizedBox(
             width: 90,
             height: 24,
             child: TextField(
               controller: _offsetController,
-              style: const TextStyle(
-                fontSize: 11,
-                fontFamily: 'monospace',
-                color: AppTheme.textPrimary,
-              ),
+              style: AppTypography.codeStyle.copyWith(fontSize: 11),
               decoration: InputDecoration(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8),
                 border: OutlineInputBorder(
@@ -147,11 +133,7 @@ class _HexViewerState extends State<HexViewer> {
       label:
           'Binary data viewer showing hex offsets, bytes, and ASCII representation.',
       child: DefaultTextStyle(
-        style: const TextStyle(
-          fontFamily: 'monospace',
-          fontSize: 11,
-          height: 1.4,
-        ),
+        style: AppTypography.codeStyle,
         child: Scrollbar(
           controller: _scrollController,
           thumbVisibility: true,
@@ -188,7 +170,7 @@ class _HexViewerState extends State<HexViewer> {
             width: 60,
             child: Text(
               startOffset.toRadixString(16).padLeft(8, '0').toUpperCase(),
-              style: const TextStyle(color: AppTheme.textMuted),
+              style: AppTypography.codeAddressStyle,
             ),
           ),
           const SizedBox(width: 12),
@@ -200,7 +182,9 @@ class _HexViewerState extends State<HexViewer> {
             flex: 1,
             child: Text(
               _bytesToAscii(rowBytes),
-              style: const TextStyle(color: AppTheme.accentPurple),
+              style: AppTypography.codeMutedStyle.copyWith(
+                color: AppTheme.accentPurple,
+              ),
             ),
           ),
         ],
@@ -304,7 +288,7 @@ class _HexViewerState extends State<HexViewer> {
           const Spacer(),
           Text(
             'Size: ${_formatSize(widget.data.length)}',
-            style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary),
+            style: AppTypography.caption,
           ),
         ],
       ),
@@ -324,10 +308,7 @@ class _HexViewerState extends State<HexViewer> {
           ),
         ),
         const SizedBox(width: 4),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 11, color: AppTheme.textMuted),
-        ),
+        Text(label, style: AppTypography.caption),
       ],
     );
   }

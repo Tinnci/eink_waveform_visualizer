@@ -197,3 +197,97 @@ extension ThemeColors on BuildContext {
   Color get textPrimary => AppTheme.textPrimary;
   Color get textSecondary => AppTheme.textSecondary;
 }
+
+/// 2026 Typography Design Tokens
+/// Use these for consistent text styling across the application.
+class AppTypography {
+  AppTypography._();
+
+  /// Monospace font family for code and hex data display.
+  /// Uses system monospace as fallback for cross-platform compatibility.
+  static const String monospaceFontFamily = 'monospace';
+
+  /// Code/Hex data display style - optimized for dense data readability.
+  /// Line height 1.4 prevents visual "sticking" in long hex dumps.
+  static const TextStyle codeStyle = TextStyle(
+    fontFamily: monospaceFontFamily,
+    fontSize: 13,
+    height: 1.4,
+    letterSpacing: 0.5,
+    color: AppTheme.textPrimary,
+  );
+
+  /// Muted code style for secondary hex data (e.g., ASCII column).
+  static const TextStyle codeMutedStyle = TextStyle(
+    fontFamily: monospaceFontFamily,
+    fontSize: 13,
+    height: 1.4,
+    letterSpacing: 0.5,
+    color: AppTheme.textSecondary,
+  );
+
+  /// Address/offset column style - slightly dimmer for visual hierarchy.
+  static const TextStyle codeAddressStyle = TextStyle(
+    fontFamily: monospaceFontFamily,
+    fontSize: 12,
+    height: 1.4,
+    letterSpacing: 0.3,
+    color: AppTheme.textMuted,
+  );
+
+  /// Section title style - for card headers and panel titles.
+  static const TextStyle sectionTitle = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    color: AppTheme.textPrimary,
+    height: 1.3,
+  );
+
+  /// Subtitle/description style - for secondary information.
+  static const TextStyle subtitle = TextStyle(
+    fontSize: 14,
+    fontWeight: FontWeight.w400,
+    color: AppTheme.textSecondary,
+    height: 1.4,
+  );
+
+  /// Caption style - for timestamps, metadata, and small labels.
+  static const TextStyle caption = TextStyle(
+    fontSize: 12,
+    fontWeight: FontWeight.w400,
+    color: AppTheme.textMuted,
+    height: 1.3,
+  );
+
+  /// Button label style - for primary action buttons.
+  static const TextStyle buttonLabel = TextStyle(
+    fontSize: 14,
+    fontWeight: FontWeight.w600,
+    color: AppTheme.textPrimary,
+    letterSpacing: 0.2,
+  );
+
+  /// Navigation label style - compact for nav bar/rail.
+  static const TextStyle navLabel = TextStyle(
+    fontSize: 12,
+    fontWeight: FontWeight.w500,
+    color: AppTheme.textSecondary,
+  );
+
+  /// Data value style - for displaying numeric values prominently.
+  static const TextStyle dataValue = TextStyle(
+    fontFamily: monospaceFontFamily,
+    fontSize: 14,
+    fontWeight: FontWeight.w600,
+    color: AppTheme.accentGreen,
+    height: 1.2,
+  );
+
+  /// Data label style - for labeling data values.
+  static const TextStyle dataLabel = TextStyle(
+    fontSize: 11,
+    fontWeight: FontWeight.w500,
+    color: AppTheme.textMuted,
+    letterSpacing: 0.5,
+  );
+}
