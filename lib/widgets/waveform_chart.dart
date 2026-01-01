@@ -169,14 +169,20 @@ class _WaveformChartState extends State<WaveformChart>
       builder: (context, child) {
         return Padding(
           padding: const EdgeInsets.all(16),
-          child: CustomPaint(
-            painter: WaveformPainter(
-              voltages: provider.currentSequence,
-              animationProgress: _animation.value,
-              showGrid: _showGrid,
-              showLabels: _showLabels,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              minHeight: 200,
+              minWidth: double.infinity,
             ),
-            child: Container(),
+            child: CustomPaint(
+              painter: WaveformPainter(
+                voltages: provider.currentSequence,
+                animationProgress: _animation.value,
+                showGrid: _showGrid,
+                showLabels: _showLabels,
+              ),
+              child: const SizedBox.expand(),
+            ),
           ),
         );
       },

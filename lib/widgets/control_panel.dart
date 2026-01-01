@@ -16,60 +16,62 @@ class ControlPanel extends StatelessWidget {
         return Card(
           child: Padding(
             padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _buildSectionHeader(
-                  icon: Icons.tune,
-                  title: 'Controls',
-                  color: AppTheme.accentPurple,
-                ),
-                const SizedBox(height: 16),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildSectionHeader(
+                    icon: Icons.tune,
+                    title: 'Controls',
+                    color: AppTheme.accentPurple,
+                  ),
+                  const SizedBox(height: 16),
 
-                // Gray Level Controls
-                _buildGrayLevelControl(
-                  label: 'From Gray Level',
-                  value: provider.selectedFromGray,
-                  onChanged: provider.hasFile ? provider.setFromGray : null,
-                ),
-                const SizedBox(height: 12),
-                _buildGrayLevelControl(
-                  label: 'To Gray Level',
-                  value: provider.selectedToGray,
-                  onChanged: provider.hasFile ? provider.setToGray : null,
-                ),
+                  // Gray Level Controls
+                  _buildGrayLevelControl(
+                    label: 'From Gray Level',
+                    value: provider.selectedFromGray,
+                    onChanged: provider.hasFile ? provider.setFromGray : null,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildGrayLevelControl(
+                    label: 'To Gray Level',
+                    value: provider.selectedToGray,
+                    onChanged: provider.hasFile ? provider.setToGray : null,
+                  ),
 
-                const SizedBox(height: 20),
-                const Divider(height: 1),
-                const SizedBox(height: 16),
+                  const SizedBox(height: 20),
+                  const Divider(height: 1),
+                  const SizedBox(height: 16),
 
-                // Mode Selection
-                _buildSectionHeader(
-                  icon: Icons.layers,
-                  title: 'Refresh Mode',
-                  color: AppTheme.accentOrange,
-                ),
-                const SizedBox(height: 12),
-                _buildModeSelector(context, provider),
+                  // Mode Selection
+                  _buildSectionHeader(
+                    icon: Icons.layers,
+                    title: 'Refresh Mode',
+                    color: AppTheme.accentOrange,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildModeSelector(context, provider),
 
-                const SizedBox(height: 20),
-                const Divider(height: 1),
-                const SizedBox(height: 16),
+                  const SizedBox(height: 20),
+                  const Divider(height: 1),
+                  const SizedBox(height: 16),
 
-                // Temperature Control
-                _buildSectionHeader(
-                  icon: Icons.thermostat,
-                  title: 'Temperature',
-                  color: AppTheme.accentCyan,
-                ),
-                const SizedBox(height: 12),
-                _buildTemperatureControl(provider),
+                  // Temperature Control
+                  _buildSectionHeader(
+                    icon: Icons.thermostat,
+                    title: 'Temperature',
+                    color: AppTheme.accentCyan,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildTemperatureControl(provider),
 
-                const Spacer(),
+                  const SizedBox(height: 20),
 
-                // Transition Info
-                if (provider.hasFile) _buildTransitionInfo(provider),
-              ],
+                  // Transition Info
+                  if (provider.hasFile) _buildTransitionInfo(provider),
+                ],
+              ),
             ),
           ),
         );

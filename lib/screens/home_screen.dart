@@ -436,6 +436,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     return Expanded(
                       child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
                         onTap: () {
                           provider.setFromGray(fromGray);
                           provider.setToGray(toGray);
@@ -443,6 +444,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                         child: Container(
                           margin: const EdgeInsets.all(1),
+                          height: 30, // Give it a fixed height or min height
                           decoration: BoxDecoration(
                             color: color,
                             borderRadius: BorderRadius.circular(2),
