@@ -207,4 +207,34 @@ class WaveformProvider extends ChangeNotifier {
     _hexViewOffset = 0;
     notifyListeners();
   }
+
+  /// Export current waveform sequence to CSV
+  Future<String?> exportToCsv() async {
+    if (_currentSequence.isEmpty) {
+      _error = 'No waveform data to export';
+      notifyListeners();
+      return null;
+    }
+
+    try {
+      final result = await CsvExporter.exportSequence(
+        sequence: _currentSequence,
+        fromGray: _selectedFromGray,
+        toGray: _selectedToGray,
+        mode: _selectedMode,
+        temperature: _selectedTemperature,
+      );
+
+      if (result != null) {
+        _error = null;
+      }
+
+      notifyListeners();
+      return result;
+    } catch (e) {
+      _error = 'Export failed: $e';
+      notifyListeners();
+      return null;
+    }
+  }
 }

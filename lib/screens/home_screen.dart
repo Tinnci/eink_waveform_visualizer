@@ -164,6 +164,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
           const SizedBox(width: 16),
 
+          // Export button
+          _buildToolbarButton(
+            icon: Icons.download,
+            label: 'Export',
+            onPressed: () => _exportWaveform(context, provider),
+          ),
+          const SizedBox(width: 8),
+
           // Open file button
           _buildToolbarButton(
             icon: Icons.folder_open,
@@ -173,12 +181,31 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(width: 8),
           _buildToolbarButton(
             icon: Icons.help_outline,
-            label: 'Help',
-            onPressed: () => _showHelpDialog(context),
+            label: 'About',
+            onPressed: () => _showAboutDialog(context),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _exportWaveform(
+    BuildContext context,
+    WaveformProvider provider,
+  ) async {
+    if (!provider.hasFile) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('No waveform file loaded')));
+      return;
+    }
+
+    final result = await provider.exportToCsv();
+    if (result != null && context.mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Exported to: $result')));
+    }
   }
 
   Widget _buildToolbarButton({
@@ -494,7 +521,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showHelpDialog(BuildContext context) {
+  void _showAboutDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -505,80 +532,158 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         title: const Row(
           children: [
-            Icon(Icons.help_outline, color: AppTheme.accentBlue),
+            Icon(Icons.waves, color: AppTheme.accentGreen),
             SizedBox(width: 12),
-            Text(
-              'E-Ink Waveform Visualizer',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.textPrimary,
+            Flexible(
+              child: Text(
+                'E-Ink Waveform Visualizer',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.textPrimary,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
         ),
-        content: const SizedBox(
-          width: 400,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'About',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.accentGreen,
+        content: SingleChildScrollView(
+          child: SizedBox(
+            width: 450,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // About section
+                const Text(
+                  'About',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.accentGreen,
+                  ),
                 ),
-              ),
-              SizedBox(height: 8),
-              Text(
-                'This tool parses and visualizes E-Ink waveform files used in electronic paper displays. '
-                'It supports PVI (E-Ink Corp) and RKF (Rockchip) formats.',
-                style: TextStyle(fontSize: 13, color: AppTheme.textSecondary),
-              ),
-              SizedBox(height: 16),
-              Text(
-                'Waveform Structure',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.accentBlue,
+                const SizedBox(height: 8),
+                const Text(
+                  'A professional tool for parsing and visualizing E-Ink waveform files '
+                  'used in electronic paper displays. Supports PVI (E-Ink Corp) and RKF (Rockchip) formats.',
+                  style: TextStyle(fontSize: 13, color: AppTheme.textSecondary),
                 ),
-              ),
-              SizedBox(height: 8),
-              Text(
-                '• Header: Contains version, checksum, and temperature segments\n'
-                '• LUT Data: Lookup tables for gray level transitions\n'
-                '• Voltage sequence: +15V, 0V, -15V patterns per frame',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: AppTheme.textSecondary,
-                  height: 1.5,
+
+                const SizedBox(height: 20),
+                const Divider(height: 1),
+                const SizedBox(height: 16),
+
+                // Technical Info
+                const Text(
+                  'Technical Details',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.accentBlue,
+                  ),
                 ),
-              ),
-              SizedBox(height: 16),
-              Text(
-                'Refresh Modes',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.accentPurple,
+                const SizedBox(height: 8),
+                const Text(
+                  '• Header parsing: Version, checksum, temperature segments\n'
+                  '• LUT decoding: 16x16 gray level transition lookup tables\n'
+                  '• Voltage sequence: +15V, 0V, -15V patterns per frame\n'
+                  '• Export support: CSV format for further analysis',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppTheme.textSecondary,
+                    height: 1.5,
+                  ),
                 ),
-              ),
-              SizedBox(height: 8),
-              Text(
-                '• GC16: Full grayscale clear (16 levels)\n'
-                '• GL16: Grayscale light update\n'
-                '• A2: Fast 2-level animation mode\n'
-                '• DU: Direct update (black/white only)',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: AppTheme.textSecondary,
-                  height: 1.5,
+
+                const SizedBox(height: 20),
+                const Divider(height: 1),
+                const SizedBox(height: 16),
+
+                // Open Source Credits
+                const Text(
+                  'Open Source Credits',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.accentOrange,
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 8),
+                const Text(
+                  'Waveform parsing logic is based on reverse engineering of:\n'
+                  '• Rockchip EBC driver source code (kernel-rockchip)\n'
+                  '• FriendlyARM kernel patches for EPD LUT handling\n'
+                  '• pvi_waveform_v8.S assembly implementation',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppTheme.textSecondary,
+                    height: 1.5,
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+                const Divider(height: 1),
+                const SizedBox(height: 16),
+
+                // License & Repository
+                const Text(
+                  'License & Repository',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.accentPurple,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                _buildLinkRow(
+                  icon: Icons.description,
+                  label: 'License',
+                  value: 'MIT License',
+                ),
+                const SizedBox(height: 6),
+                _buildLinkRow(
+                  icon: Icons.code,
+                  label: 'Repository',
+                  value: 'github.com/Tinnci/eink_waveform_visualizer',
+                ),
+                const SizedBox(height: 6),
+                _buildLinkRow(
+                  icon: Icons.person,
+                  label: 'Author',
+                  value: 'shiso <shisoratsu@icloud.com>',
+                ),
+
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.surfaceDark,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: AppTheme.borderDark),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        color: AppTheme.textMuted,
+                        size: 16,
+                      ),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'This software is provided "as is" without warranty of any kind.',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: AppTheme.textMuted,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         actions: [
@@ -588,6 +693,34 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildLinkRow({
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    return Row(
+      children: [
+        Icon(icon, size: 14, color: AppTheme.textMuted),
+        const SizedBox(width: 8),
+        Text(
+          '$label: ',
+          style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+        ),
+        Flexible(
+          child: Text(
+            value,
+            style: const TextStyle(
+              fontSize: 12,
+              color: AppTheme.accentCyan,
+              fontWeight: FontWeight.w500,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
     );
   }
 }
