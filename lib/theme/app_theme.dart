@@ -11,7 +11,9 @@ class AppTheme {
   static const Color cardDark = Color(0xFF21262D);
   static const Color borderDark = Color(0xFF30363D);
 
-  static const Color accentGreen = Color(0xFF3FB950);
+  static const Color accentGreen = Color(
+    0xFF4ADE80,
+  ); // Brightened from 0xFF3FB950 for >4.5:1 contrast
   static const Color accentBlue = Color(0xFF58A6FF);
   static const Color accentPurple = Color(0xFFA371F7);
   static const Color accentOrange = Color(0xFFD29922);
@@ -129,6 +131,41 @@ class AppTheme {
         labelLarge: TextStyle(color: textPrimary, fontWeight: FontWeight.w500),
         labelMedium: TextStyle(color: textSecondary),
         labelSmall: TextStyle(color: textMuted),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: surfaceDark,
+        indicatorColor: accentGreen.withValues(alpha: 0.1),
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const IconThemeData(color: accentGreen);
+          }
+          return const IconThemeData(color: textSecondary);
+        }),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const TextStyle(
+              color: accentGreen,
+              fontWeight: FontWeight.w600,
+              fontSize: 12,
+            );
+          }
+          return const TextStyle(color: textSecondary, fontSize: 12);
+        }),
+      ),
+      navigationRailTheme: NavigationRailThemeData(
+        backgroundColor: surfaceDark,
+        indicatorColor: accentGreen.withValues(alpha: 0.1),
+        selectedIconTheme: const IconThemeData(color: accentGreen),
+        unselectedIconTheme: const IconThemeData(color: textSecondary),
+        selectedLabelTextStyle: const TextStyle(
+          color: accentGreen,
+          fontWeight: FontWeight.w600,
+          fontSize: 12,
+        ),
+        unselectedLabelTextStyle: const TextStyle(
+          color: textSecondary,
+          fontSize: 12,
+        ),
       ),
     );
   }

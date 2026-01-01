@@ -38,12 +38,41 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<WaveformProvider>();
     final width = MediaQuery.sizeOf(context).width;
-    final isNarrow = width < 900;
+
+    // 2026 Adaptive Breakpoints
+    final isPhone = width < 600;
+    final isTablet = width >= 600 && width < 1200;
 
     return Scaffold(
       backgroundColor: AppTheme.surfaceDark,
       appBar: _HomeAppBar(currentFile: provider.currentFile),
-      drawer: isNarrow
+      // Mobile bottom bar (2026 Standard)
+      bottomNavigationBar: isPhone
+          ? NavigationBar(
+              selectedIndex: _selectedTab,
+              onDestinationSelected: (index) =>
+                  setState(() => _selectedTab = index),
+              labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+              destinations: const [
+                NavigationDestination(
+                  icon: Icon(Icons.analytics_outlined),
+                  selectedIcon: Icon(Icons.analytics),
+                  label: 'Waveform',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.data_object_outlined),
+                  selectedIcon: Icon(Icons.data_object),
+                  label: 'Hex',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.grid_view_outlined),
+                  selectedIcon: Icon(Icons.grid_view),
+                  label: 'Matrix',
+                ),
+              ],
+            )
+          : null,
+      drawer: isPhone || isTablet
           ? const Drawer(
               width: 300,
               backgroundColor: AppTheme.primaryDark,
@@ -52,24 +81,28 @@ class _HomeScreenState extends State<HomeScreen> {
           : null,
       body: Row(
         children: [
-          Builder(
-            builder: (context) => _HomeNavigationRail(
-              selectedIndex: _selectedTab,
-              isSidebarVisible: isNarrow ? false : _isSidebarVisible,
-              onTabSelected: (index) => setState(() => _selectedTab = index),
-              onToggleSidebar: () {
-                if (isNarrow) {
-                  Scaffold.of(context).openDrawer();
-                } else {
-                  setState(() => _isSidebarVisible = !_isSidebarVisible);
-                }
-              },
+          // Navigation Rail only for Tablet/Desktop
+          if (!isPhone)
+            Builder(
+              builder: (context) => _HomeNavigationRail(
+                selectedIndex: _selectedTab,
+                isSidebarVisible: !isTablet && _isSidebarVisible,
+                onTabSelected: (index) => setState(() => _selectedTab = index),
+                onToggleSidebar: () {
+                  if (isTablet) {
+                    Scaffold.of(context).openDrawer();
+                  } else {
+                    setState(() => _isSidebarVisible = !_isSidebarVisible);
+                  }
+                },
+              ),
             ),
-          ),
-          const VerticalDivider(width: 1),
-          if (!isNarrow && _isSidebarVisible)
+          if (!isPhone) const VerticalDivider(width: 1),
+          // Permanent Sidebar only for Desktop
+          if (!isPhone && !isTablet && _isSidebarVisible)
             const SizedBox(width: 280, child: _HomeSidebar()),
-          if (!isNarrow && _isSidebarVisible) const VerticalDivider(width: 1),
+          if (!isPhone && !isTablet && _isSidebarVisible)
+            const VerticalDivider(width: 1),
           Expanded(
             child: _HomeMainContent(
               selectedTab: _selectedTab,
@@ -158,34 +191,38 @@ class _HomeNavigationRail extends StatelessWidget {
       selectedIndex: selectedIndex,
       onDestinationSelected: onTabSelected,
       backgroundColor: AppTheme.surfaceDark,
-      labelType: NavigationRailLabelType.none,
+      labelType:
+          NavigationRailLabelType.all, // 2026 Standard: Avoid guessing icons
+      minWidth: 72, // Modern spacing
+      useIndicator: true, // Show the M3 "Pill" indicator
       leading: Column(
         children: [
+          const SizedBox(height: 8),
           IconButton(
             icon: Icon(
               isSidebarVisible ? Icons.menu_open : Icons.menu,
-              color: AppTheme.textSecondary,
+              color: AppTheme.textPrimary,
             ),
             onPressed: onToggleSidebar,
             tooltip: 'Toggle Sidebar',
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 16),
         ],
       ),
       destinations: const [
         NavigationRailDestination(
-          icon: Icon(Icons.show_chart_outlined),
-          selectedIcon: Icon(Icons.show_chart, color: AppTheme.accentGreen),
+          icon: Icon(Icons.analytics_outlined),
+          selectedIcon: Icon(Icons.analytics),
           label: Text('Waveform'),
         ),
         NavigationRailDestination(
-          icon: Icon(Icons.code_outlined),
-          selectedIcon: Icon(Icons.code, color: AppTheme.accentGreen),
+          icon: Icon(Icons.data_object_outlined),
+          selectedIcon: Icon(Icons.data_object),
           label: Text('Hex'),
         ),
         NavigationRailDestination(
-          icon: Icon(Icons.table_chart_outlined),
-          selectedIcon: Icon(Icons.table_chart, color: AppTheme.accentPurple),
+          icon: Icon(Icons.grid_view_outlined),
+          selectedIcon: Icon(Icons.grid_view),
           label: Text('Matrix'),
         ),
       ],
