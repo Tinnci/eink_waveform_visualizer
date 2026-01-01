@@ -109,15 +109,18 @@ class ControlPanel extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 12,
-                color: AppTheme.textSecondary,
+            Flexible(
+              child: Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppTheme.textSecondary,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
+            const SizedBox(width: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
@@ -240,18 +243,21 @@ class ControlPanel extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              '${minTemp + (provider.selectedTemperature * (maxTemp - minTemp) / maxIndex).round()}°C',
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.accentCyan,
+            Flexible(
+              child: Text(
+                '${minTemp + (provider.selectedTemperature * (maxTemp - minTemp) / maxIndex).round()}°C',
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.accentCyan,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
+            const SizedBox(width: 8),
             Text(
-              'Index: ${provider.selectedTemperature}',
+              'Idx: ${provider.selectedTemperature}',
               style: const TextStyle(fontSize: 12, color: AppTheme.textMuted),
             ),
           ],
@@ -301,14 +307,15 @@ class ControlPanel extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Row(
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
             children: [
               _buildInfoChip(
                 'Frames',
                 provider.currentSequence.length.toString(),
                 AppTheme.accentGreen,
               ),
-              const SizedBox(width: 8),
               _buildInfoChip(
                 'Direction',
                 provider.selectedFromGray < provider.selectedToGray
