@@ -18,6 +18,9 @@ class WaveformProvider extends ChangeNotifier {
   // Now uses the mutable WaveformSequence model
   WaveformSequence? _currentSequence;
 
+  // Simulation output
+  List<double> _simulationResult = [];
+
   // Dependency injected via ProxyProvider
   SelectionProvider? _selection;
 
@@ -28,6 +31,7 @@ class WaveformProvider extends ChangeNotifier {
   bool get hasFile => _currentFile != null;
 
   WaveformSequence? get currentSequence => _currentSequence;
+  List<double> get simulationResult => _simulationResult;
 
   // Shortcuts accessors for UI convenience (read-only)
   // The UI should use SelectionProvider directly for writing.
@@ -140,6 +144,7 @@ class WaveformProvider extends ChangeNotifier {
   void _updateSequence() {
     if (_currentFile == null || _selection == null) {
       _currentSequence = null;
+      _simulationResult = [];
       notifyListeners();
       return;
     }
@@ -179,6 +184,18 @@ class WaveformProvider extends ChangeNotifier {
       fromGray: _selection!.selectedFromGray,
       toGray: _selection!.selectedToGray,
     );
+
+    // Run Optical Simulation
+    // Assuming Gray 0 = Black, Gray 15 = White.
+    // Initial reflectance is normalized (0.0 - 1.0)
+    final initialReflectance = _selection!.selectedFromGray / 15.0;
+
+    _simulationResult = OpticalSimulator.simulate(
+      sequence: rawSequence,
+      temperatureIndex: _selection!.selectedTemperature,
+      initialReflectance: initialReflectance,
+    );
+
     notifyListeners();
   }
 
