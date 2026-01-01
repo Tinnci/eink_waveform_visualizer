@@ -1,17 +1,50 @@
-# waveform_visualizer
+# E-Ink Waveform Visualizer & Parser
 
-E-Ink Waveform Visualizer and Parser
+![Flutter](https://img.shields.io/badge/Flutter-%2302569B.svg?style=for-the-badge&logo=Flutter&logoColor=white)
+![Dart](https://img.shields.io/badge/dart-%230175C2.svg?style=for-the-badge&logo=dart&logoColor=white)
+![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-blue?style=for-the-badge)
 
-## Getting Started
+这是一个硬核的 E-Ink 电子纸波形文件可视化与分析工具，专为开发者、驱动工程师和显示器极客设计。它能够读取、解析并动态展示用于驱动墨水屏粒子的电压序列（LUT）。
 
-This project is a starting point for a Flutter application.
+## 🌟 核心功能
 
-A few resources to get you started if this is your first Flutter project:
+- **双格式解析引擎**：支持 `PVI` (E-Ink Corp) 标准格式和 `RKF` (Rockchip) 自研格式。
+- **动态波形展示**：实时绘制 16 级灰阶转换的电压脉冲（+15V, 0V, -15V），直观观察粒子“拉扯”过程。
+- **交互式 LUT 矩阵**：16x16 的灰阶转换热力图，点击任一色块即可查看对应转换路径的电压逻辑。
+- **内置 Hex Viewer**：支持二进制查看，针对波形命令字（如 `0xFF` 结束符, `0xFC` 特殊指令）进行语法高亮。
+- **环境模拟**：支持多级温度区间切换和多种刷新模式（GC16, A2, DU 等）的过滤选择。
+- **现代化 UI**：采用深色示波器风格设计，针对桌面端大屏显示进行响应式优化。
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## 🛠 技术深度
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+解析逻辑基于对瑞芯微（Rockchip）内核 EBC 驱动源码（`pvi_waveform_v8.S` 等）的逆向与还原，实现了：
+- 三维 LUT 寻址：`LUT[旧灰阶][新灰阶][帧阶]`。
+- 字节位域解压缩：将 2-bit 的电压指令从二进制流中完整提取。
+- 校验和验证：确保波形文件的完整性。
+
+## 🚀 快速开始
+
+### 环境要求
+- Flutter SDK (Beta channel 或 Stable >= 3.10)
+- Desktop 开发环境支持 (Visual Studio with C++ workloads on Windows)
+
+### 运行
+```powershell
+# 安装依赖
+flutter pub get
+
+# 运行应用 (Windows)
+flutter run -d windows
+```
+
+## 📂 项目结构
+- `/lib/services`: 核心解析算法与二进制协议逻辑。
+- `/lib/models`: PVI/RKF 结构体定义。
+- `/lib/widgets`: 自绘波形组件（CustomPainter）与 UI 元素。
+- `/lib/providers`: 全局状态控制（Provider）。
+
+## 🤝 贡献说明
+如果你发现了新的波形变体（如新的 PVI 版本或特殊的 RKF 压缩算法），欢迎提交 Issue 或 PR。
+
+## 📄 开源协议
+本程序采用 **MIT** 协议开源。
