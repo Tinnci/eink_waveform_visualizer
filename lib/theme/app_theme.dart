@@ -32,8 +32,8 @@ class AppTheme {
   static const Color textPrimary = Color(0xFFE6EDF3);
   static const Color textSecondary = Color(0xFF8B949E);
   static const Color textMuted = Color(
-    0xFF6E7681,
-  ); // Improved from 0xFF484F58 for WCAG 2.1 AA
+    0xFF8B949E,
+  ); // Adjusted to 0xFF8B949E for WCAG 2.1 AA (4.5:1)
 
   /// Create the dark theme
   static ThemeData get darkTheme {
@@ -131,6 +131,21 @@ class AppTheme {
         labelSmall: TextStyle(color: textMuted),
       ),
     );
+  }
+
+  /// Calculates the contrast ratio between two colors.
+  /// Returns a value between 1.0 and 21.0.
+  static double getContrastRatio(Color color1, Color color2) {
+    final double l1 = color1.computeLuminance();
+    final double l2 = color2.computeLuminance();
+    final double brightest = l1 > l2 ? l1 : l2;
+    final double darkest = l1 > l2 ? l2 : l1;
+    return (brightest + 0.05) / (darkest + 0.05);
+  }
+
+  /// Checks if the contrast ratio meets WCAG 2.1 AA standards for text (4.5:1).
+  static bool isWCAGPass(Color text, Color background) {
+    return getContrastRatio(text, background) >= 4.5;
   }
 }
 

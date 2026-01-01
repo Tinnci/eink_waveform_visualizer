@@ -48,4 +48,55 @@ void main() {
     handle.dispose();
     await tester.binding.setSurfaceSize(null);
   });
+
+  group('Theme Color Compliance Audit', () {
+    test('Primary text contrast should meet WCAG AA (4.5:1)', () {
+      final ratio = AppTheme.getContrastRatio(
+        AppTheme.textPrimary,
+        AppTheme.surfaceDark,
+      );
+      expect(
+        ratio,
+        greaterThanOrEqualTo(4.5),
+        reason: 'Primary text should be readable on dark surfaces',
+      );
+    });
+
+    test('Secondary text contrast should meet WCAG AA (4.5:1)', () {
+      final ratio = AppTheme.getContrastRatio(
+        AppTheme.textSecondary,
+        AppTheme.surfaceDark,
+      );
+      expect(
+        ratio,
+        greaterThanOrEqualTo(4.5),
+        reason: 'Secondary text must meet accessibility standards',
+      );
+    });
+
+    test('Muted text contrast should meet WCAG AA (4.5:1)', () {
+      final ratio = AppTheme.getContrastRatio(
+        AppTheme.textMuted,
+        AppTheme.surfaceDark,
+      );
+      expect(
+        ratio,
+        greaterThanOrEqualTo(4.5),
+        reason: 'Muted text (improved) should now pass contrast checks',
+      );
+    });
+
+    test('Accent Green on Surface contrast (for UI components)', () {
+      final ratio = AppTheme.getContrastRatio(
+        AppTheme.accentGreen,
+        AppTheme.surfaceDark,
+      );
+      // For UI components/non-text, 3:1 is acceptable (AA)
+      expect(
+        ratio,
+        greaterThanOrEqualTo(3.0),
+        reason: 'Accent green icons must be visible on dark surfaces',
+      );
+    });
+  });
 }
