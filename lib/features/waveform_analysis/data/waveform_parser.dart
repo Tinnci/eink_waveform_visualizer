@@ -1,5 +1,5 @@
 import 'dart:typed_data';
-import '../models/models.dart';
+import '../../../../models/models.dart';
 
 /// Service for parsing E-Ink waveform files
 class WaveformParser {

@@ -2,8 +2,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import '../../models/models.dart';
-import '../../theme/app_theme.dart';
+import '../../../../models/models.dart';
+import '../../../../theme/app_theme.dart';
 
 /// Custom painter for rendering the voltage waveform
 class WaveformPainter extends CustomPainter {
