@@ -27,53 +27,64 @@ class FileInfoPanel extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Header
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: AppTheme.accentGreen.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(
-                        Icons.description,
-                        color: AppTheme.accentGreen,
-                        size: 24,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            file.fileName,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: AppTheme.textPrimary,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                Semantics(
+                  label: 'Loaded file information',
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppTheme.accentGreen.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const ExcludeSemantics(
+                          child: Icon(
+                            Icons.description,
+                            color: AppTheme.accentGreen,
+                            size: 24,
                           ),
-                          const SizedBox(height: 2),
-                          Text(
-                            _formatBytes(file.fileSize),
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: AppTheme.textSecondary,
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close, size: 18),
-                      onPressed: provider.clearFile,
-                      color: AppTheme.textMuted,
-                      tooltip: 'Close file',
-                    ),
-                  ],
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: MergeSemantics(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                file.fileName,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppTheme.textPrimary,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                _formatBytes(file.fileSize),
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: AppTheme.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, size: 18),
+                        onPressed: provider.clearFile,
+                        color: AppTheme.textMuted,
+                        tooltip: 'Close file',
+                        constraints: const BoxConstraints(
+                          minWidth: 48,
+                          minHeight: 48,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
 
                 const SizedBox(height: 16),
@@ -214,21 +225,26 @@ class FileInfoPanel extends StatelessWidget {
                 style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
               ),
               const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: AppTheme.accentBlue,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Text(
-                  'Browse Files',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
+              Semantics(
+                button: true,
+                label: 'Browse for waveform files',
+                onTap: provider.loadFile,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppTheme.accentBlue,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    'Browse Files',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),

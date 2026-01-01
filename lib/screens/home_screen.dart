@@ -92,7 +92,9 @@ class _HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
       elevation: 0,
       title: Row(
         children: [
-          const Icon(Icons.waves, color: AppTheme.accentGreen, size: 20),
+          const ExcludeSemantics(
+            child: Icon(Icons.waves, color: AppTheme.accentGreen, size: 20),
+          ),
           const SizedBox(width: 8),
           const Text(
             'E-Ink Waveform Visualizer',
@@ -123,7 +125,9 @@ class _HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(1),
-        child: Container(color: AppTheme.borderDark, height: 1),
+        child: ExcludeSemantics(
+          child: Container(color: AppTheme.borderDark, height: 1),
+        ),
       ),
     );
   }
@@ -320,8 +324,8 @@ class _HomeToolbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 48,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      constraints: const BoxConstraints(minHeight: 48),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: const BoxDecoration(
         color: AppTheme.surfaceDark,
         border: Border(bottom: BorderSide(color: AppTheme.borderDark)),
@@ -399,29 +403,36 @@ class _ToolbarButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return Semantics(
+      button: true,
+      label: label,
       onTap: onPressed,
-      borderRadius: BorderRadius.circular(6),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: AppTheme.cardDark,
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: AppTheme.borderDark),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 16, color: AppTheme.textSecondary),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 13,
-                color: AppTheme.textSecondary,
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(6),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 44, minWidth: 80),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: AppTheme.cardDark,
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(color: AppTheme.borderDark),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 18, color: AppTheme.textSecondary),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: AppTheme.textSecondary,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -553,26 +564,38 @@ class _MatrixGrid extends StatelessWidget {
                     )!;
 
                     return Expanded(
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
+                      child: Semantics(
+                        label: 'Transition from Gray $fromGray to $toGray',
+                        selected: isSelected,
+                        button: true,
                         onTap: () {
                           final selection = context.read<SelectionProvider>();
                           selection.setFromGray(fromGray);
                           selection.setToGray(toGray);
                           onTransitionSelected();
                         },
-                        child: Container(
-                          margin: const EdgeInsets.all(1),
-                          height: 30,
-                          decoration: BoxDecoration(
-                            color: color,
-                            borderRadius: BorderRadius.circular(2),
-                            border: isSelected
-                                ? Border.all(
-                                    color: AppTheme.accentGreen,
-                                    width: 2,
-                                  )
-                                : null,
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            final selection = context.read<SelectionProvider>();
+                            selection.setFromGray(fromGray);
+                            selection.setToGray(toGray);
+                            onTransitionSelected();
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.all(1),
+                            height:
+                                48, // 2026 Compliance: 48px minimum touch target
+                            decoration: BoxDecoration(
+                              color: color,
+                              borderRadius: BorderRadius.circular(4),
+                              border: isSelected
+                                  ? Border.all(
+                                      color: AppTheme.accentGreen,
+                                      width: 2,
+                                    )
+                                  : null,
+                            ),
                           ),
                         ),
                       ),

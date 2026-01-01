@@ -140,22 +140,29 @@ class _HexViewerState extends State<HexViewer> {
 
     final rowCount = (widget.data.length / widget.bytesPerRow).ceil();
 
-    return DefaultTextStyle(
-      style: const TextStyle(
-        fontFamily: 'monospace',
-        fontSize: 11,
-        height: 1.4,
-      ),
-      child: Scrollbar(
-        controller: _scrollController,
-        thumbVisibility: true,
-        child: ListView.builder(
+    final textScaler = MediaQuery.textScalerOf(context);
+    final dynamicRowHeight = textScaler.scale(_rowHeight);
+
+    return Semantics(
+      label:
+          'Binary data viewer showing hex offsets, bytes, and ASCII representation.',
+      child: DefaultTextStyle(
+        style: const TextStyle(
+          fontFamily: 'monospace',
+          fontSize: 11,
+          height: 1.4,
+        ),
+        child: Scrollbar(
           controller: _scrollController,
-          itemCount: rowCount,
-          itemExtent: _rowHeight,
-          itemBuilder: (context, index) {
-            return RepaintBoundary(child: _buildHexRow(index));
-          },
+          thumbVisibility: true,
+          child: ListView.builder(
+            controller: _scrollController,
+            itemCount: rowCount,
+            itemExtent: dynamicRowHeight,
+            itemBuilder: (context, index) {
+              return RepaintBoundary(child: _buildHexRow(index));
+            },
+          ),
         ),
       ),
     );

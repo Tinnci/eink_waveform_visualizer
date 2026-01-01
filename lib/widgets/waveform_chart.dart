@@ -184,26 +184,32 @@ class _WaveformChartState extends State<WaveformChart>
                 ),
                 child: Stack(
                   children: [
-                    GestureDetector(
-                      onTapUp: (details) => _handleChartTap(
-                        details,
-                        provider,
-                        constraints.maxWidth,
-                        constraints.maxHeight < 200
-                            ? 200
-                            : constraints.maxHeight,
-                      ),
-                      child: RepaintBoundary(
-                        child: CustomPaint(
-                          size: Size(
-                            constraints.maxWidth,
-                            constraints.maxHeight,
-                          ),
-                          painter: WaveformPainter(
-                            voltages: provider.currentSequence?.data ?? [],
-                            animationProgress: _animation.value,
-                            showGrid: _showGrid,
-                            showLabels: _showLabels,
+                    Semantics(
+                      label:
+                          'Waveform sequence chart showing voltage levels over time.',
+                      hint:
+                          'Interactive area. Tap to toggle voltage levels for individual frames.',
+                      child: GestureDetector(
+                        onTapUp: (details) => _handleChartTap(
+                          details,
+                          provider,
+                          constraints.maxWidth,
+                          constraints.maxHeight < 200
+                              ? 200
+                              : constraints.maxHeight,
+                        ),
+                        child: RepaintBoundary(
+                          child: CustomPaint(
+                            size: Size(
+                              constraints.maxWidth,
+                              constraints.maxHeight,
+                            ),
+                            painter: WaveformPainter(
+                              voltages: provider.currentSequence?.data ?? [],
+                              animationProgress: _animation.value,
+                              showGrid: _showGrid,
+                              showLabels: _showLabels,
+                            ),
                           ),
                         ),
                       ),

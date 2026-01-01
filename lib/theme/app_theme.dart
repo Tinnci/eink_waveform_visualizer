@@ -31,7 +31,9 @@ class AppTheme {
   // Text colors
   static const Color textPrimary = Color(0xFFE6EDF3);
   static const Color textSecondary = Color(0xFF8B949E);
-  static const Color textMuted = Color(0xFF484F58);
+  static const Color textMuted = Color(
+    0xFF6E7681,
+  ); // Improved from 0xFF484F58 for WCAG 2.1 AA
 
   /// Create the dark theme
   static ThemeData get darkTheme {
