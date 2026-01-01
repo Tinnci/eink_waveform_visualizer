@@ -82,12 +82,15 @@ class _WaveformChartState extends State<WaveformChart>
           // Title
           const Icon(Icons.show_chart, color: AppTheme.accentGreen, size: 20),
           const SizedBox(width: 8),
-          const Text(
-            'Voltage Waveform',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: AppTheme.textPrimary,
+          const Flexible(
+            child: Text(
+              'Voltage Waveform',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.textPrimary,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           const Spacer(),

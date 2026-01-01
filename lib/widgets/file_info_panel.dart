@@ -23,6 +23,7 @@ class FileInfoPanel extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Header
@@ -157,7 +158,7 @@ class FileInfoPanel extends StatelessWidget {
                 ),
 
                 if (file.loadedAt != null) ...[
-                  const Spacer(),
+                  const SizedBox(height: 16),
                   Text(
                     'Loaded: ${_formatDateTime(file.loadedAt!)}',
                     style: const TextStyle(
@@ -182,6 +183,7 @@ class FileInfoPanel extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(24),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
@@ -249,18 +251,30 @@ class FileInfoPanel extends StatelessWidget {
           Icon(icon, size: 14, color: AppTheme.textMuted),
           const SizedBox(width: 8),
         ],
-        Text(
-          label,
-          style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+        Flexible(
+          child: Text(
+            label,
+            style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        const SizedBox(width: 4),
+        const Text(
+          ':',
+          style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
         ),
         const Spacer(),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            fontFamily: 'monospace',
-            color: valueColor ?? AppTheme.textPrimary,
+        Flexible(
+          child: Text(
+            value,
+            textAlign: TextAlign.right,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              fontFamily: 'monospace',
+              color: valueColor ?? AppTheme.textPrimary,
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ],
