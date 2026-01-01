@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -390,6 +391,9 @@ class _WaveformChartState extends State<WaveformChart>
           nextVoltage = VoltageLevel.zero;
           break;
       }
+
+      // 2026 UX: Add haptic feedback for physical interaction feel
+      HapticFeedback.lightImpact();
 
       // Update via provider
       provider.updateVoltageAt(index, nextVoltage);
