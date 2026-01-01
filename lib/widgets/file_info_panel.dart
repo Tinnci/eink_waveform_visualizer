@@ -53,10 +53,8 @@ class FileInfoPanel extends StatelessWidget {
                             children: [
                               Text(
                                 file.fileName,
-                                style: const TextStyle(
+                                style: AppTypography.sectionTitle.copyWith(
                                   fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppTheme.textPrimary,
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -64,10 +62,7 @@ class FileInfoPanel extends StatelessWidget {
                               const SizedBox(height: 2),
                               Text(
                                 _formatBytes(file.fileSize),
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  color: AppTheme.textSecondary,
-                                ),
+                                style: AppTypography.caption,
                               ),
                             ],
                           ),
@@ -131,14 +126,7 @@ class FileInfoPanel extends StatelessWidget {
                 const SizedBox(height: 16),
 
                 // Supported modes
-                const Text(
-                  'Supported Modes',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.textSecondary,
-                  ),
-                ),
+                const Text('Supported Modes', style: AppTypography.dataLabel),
                 const SizedBox(height: 8),
                 Wrap(
                   spacing: 6,
@@ -158,8 +146,7 @@ class FileInfoPanel extends StatelessWidget {
                       ),
                       child: Text(
                         mode.shortName,
-                        style: const TextStyle(
-                          fontSize: 11,
+                        style: AppTypography.caption.copyWith(
                           color: AppTheme.accentGreen,
                           fontWeight: FontWeight.w500,
                         ),
@@ -172,10 +159,7 @@ class FileInfoPanel extends StatelessWidget {
                   const SizedBox(height: 16),
                   Text(
                     'Loaded: ${_formatDateTime(file.loadedAt!)}',
-                    style: const TextStyle(
-                      fontSize: 10,
-                      color: AppTheme.textMuted,
-                    ),
+                    style: AppTypography.caption.copyWith(fontSize: 10),
                   ),
                 ],
               ],
@@ -212,17 +196,13 @@ class FileInfoPanel extends StatelessWidget {
               const SizedBox(height: 16),
               const Text(
                 'Load Waveform File',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.textPrimary,
-                ),
+                style: AppTypography.sectionTitle,
               ),
               const SizedBox(height: 8),
               const Text(
                 'Supports .bin, .wbf formats\n(PVI and RKF)',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+                style: AppTypography.caption,
               ),
               const SizedBox(height: 16),
               FilledButton.icon(
@@ -263,24 +243,20 @@ class FileInfoPanel extends StatelessWidget {
         Flexible(
           child: Text(
             label,
-            style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+            style: AppTypography.caption,
             overflow: TextOverflow.ellipsis,
           ),
         ),
         const SizedBox(width: 4),
-        const Text(
-          ':',
-          style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
-        ),
+        const Text(':', style: AppTypography.caption),
         const Spacer(),
         Flexible(
           child: Text(
             value,
             textAlign: TextAlign.right,
-            style: TextStyle(
+            style: AppTypography.codeStyle.copyWith(
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              fontFamily: 'monospace',
               color: valueColor ?? AppTheme.textPrimary,
             ),
             overflow: TextOverflow.ellipsis,

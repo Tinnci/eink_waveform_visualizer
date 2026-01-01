@@ -94,10 +94,9 @@ class ControlPanel extends StatelessWidget {
         const SizedBox(width: 8),
         Text(
           title,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
+          style: AppTypography.sectionTitle.copyWith(
             color: color,
+            fontSize: 14,
           ),
         ),
       ],
@@ -117,10 +116,7 @@ class ControlPanel extends StatelessWidget {
             Flexible(
               child: Text(
                 label,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppTheme.textSecondary,
-                ),
+                style: AppTypography.caption,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -132,15 +128,7 @@ class ControlPanel extends StatelessWidget {
                 borderRadius: BorderRadius.circular(4),
                 border: Border.all(color: AppTheme.borderDark),
               ),
-              child: Text(
-                value.toString(),
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  fontFamily: 'monospace',
-                  color: AppTheme.textPrimary,
-                ),
-              ),
+              child: Text(value.toString(), style: AppTypography.dataValue),
             ),
           ],
         ),
@@ -244,9 +232,7 @@ class ControlPanel extends StatelessWidget {
             Flexible(
               child: Text(
                 '${minTemp + (provider.selectedTemperature * (maxTemp - minTemp) / maxIndex).round()}°C',
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
+                style: AppTypography.dataValue.copyWith(
                   color: AppTheme.accentCyan,
                 ),
                 overflow: TextOverflow.ellipsis,
@@ -255,7 +241,7 @@ class ControlPanel extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               'Idx: ${provider.selectedTemperature}',
-              style: const TextStyle(fontSize: 12, color: AppTheme.textMuted),
+              style: AppTypography.caption,
             ),
           ],
         ),
@@ -295,14 +281,7 @@ class ControlPanel extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Transition Info',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: AppTheme.textSecondary,
-            ),
-          ),
+          const Text('Transition Info', style: AppTypography.dataLabel),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
