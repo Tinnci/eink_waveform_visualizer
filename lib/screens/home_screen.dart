@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:animations/animations.dart';
 
 import '../models/models.dart';
 import '../providers/providers.dart';
@@ -270,7 +271,17 @@ class _HomeMainContent extends StatelessWidget {
         Expanded(
           child: Padding(
             padding: const EdgeInsets.all(12),
-            child: _buildTabContent(context),
+            child: PageTransitionSwitcher(
+              duration: const Duration(milliseconds: 300),
+              transitionBuilder: (child, animation, secondaryAnimation) {
+                return FadeThroughTransition(
+                  animation: animation,
+                  secondaryAnimation: secondaryAnimation,
+                  child: child,
+                );
+              },
+              child: _buildTabContent(context),
+            ),
           ),
         ),
       ],
@@ -293,31 +304,35 @@ class _HomeMainContent extends StatelessWidget {
   Widget _buildTabContent(BuildContext context) {
     switch (selectedTab) {
       case 0:
-        return const WaveformChart();
+        return const WaveformChart(key: ValueKey('waveform'));
       case 1:
         return provider.hasFile
             ? HexViewer(
+                key: const ValueKey('hex'),
                 data: provider.currentFile!.rawData,
                 offset: provider.hexViewOffset,
                 onOffsetChanged: (v) =>
                     context.read<SelectionProvider>().setHexViewOffset(v),
               )
             : const _EmptyStatePlaceholder(
+                key: ValueKey('empty_hex'),
                 icon: Icons.code,
                 message: 'No file loaded',
               );
       case 2:
         return provider.hasFile
             ? _LutMatrixView(
+                key: const ValueKey('matrix'),
                 provider: provider,
                 onTransitionSelected: () => onTabChanged(0),
               )
             : const _EmptyStatePlaceholder(
+                key: ValueKey('empty_matrix'),
                 icon: Icons.table_chart,
                 message: 'No file loaded',
               );
       default:
-        return const WaveformChart();
+        return const WaveformChart(key: ValueKey('waveform_default'));
     }
   }
 }
@@ -326,7 +341,11 @@ class _EmptyStatePlaceholder extends StatelessWidget {
   final IconData icon;
   final String message;
 
-  const _EmptyStatePlaceholder({required this.icon, required this.message});
+  const _EmptyStatePlaceholder({
+    super.key,
+    required this.icon,
+    required this.message,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -484,6 +503,7 @@ class _LutMatrixView extends StatelessWidget {
   final VoidCallback onTransitionSelected;
 
   const _LutMatrixView({
+    super.key,
     required this.provider,
     required this.onTransitionSelected,
   });

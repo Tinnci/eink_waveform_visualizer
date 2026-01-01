@@ -43,6 +43,7 @@ dependencies:
   
   # Google Fonts for better typography
   google_fonts: ^6.2.1
+  animations: ^2.1.1
 
 
 
