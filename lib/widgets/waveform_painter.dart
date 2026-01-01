@@ -26,7 +26,7 @@ class WaveformPainter extends CustomPainter {
       return;
     }
 
-    final padding = const EdgeInsets.fromLTRB(60, 30, 30, 40);
+    const padding = EdgeInsets.fromLTRB(60, 30, 30, 40);
     final chartRect = Rect.fromLTWH(
       padding.left,
       padding.top,

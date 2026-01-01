@@ -77,8 +77,9 @@ class WaveformParser {
     ];
   }
 
-  /// Decode waveform data for a specific gray level transition
-  /// This implements the logic from get_wf_frm_num in the assembly
+  /// Decodes the transition sequence from the raw waveform data.
+  ///
+  /// This logic handles both legacy PVI formats and newer variants.
   static WaveformTransition? decodeTransition({
     required Uint8List data,
     required PviWaveformHeader header,

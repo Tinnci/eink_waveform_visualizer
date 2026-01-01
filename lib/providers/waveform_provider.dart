@@ -25,23 +25,43 @@ class WaveformProvider extends ChangeNotifier {
   SelectionProvider? _selection;
 
   // Getters
+  /// Currently loaded waveform file
   WaveformFile? get currentFile => _currentFile;
+
+  /// Whether the provider is currently loading a file
   bool get isLoading => _isLoading;
+
+  /// Last error message, if any
   String? get error => _error;
+
+  /// Whether a file is currently loaded
   bool get hasFile => _currentFile != null;
 
+  /// Current visualized voltage sequence
   WaveformSequence? get currentSequence => _currentSequence;
+
+  /// Simulated optical reflectance result
   List<double> get simulationResult => _simulationResult;
 
   // Shortcuts accessors for UI convenience (read-only)
   // The UI should use SelectionProvider directly for writing.
+  /// The starting gray level of the current transition
   int get selectedFromGray => _selection?.selectedFromGray ?? 0;
+
+  /// The target gray level of the current transition
   int get selectedToGray => _selection?.selectedToGray ?? 0;
+
+  /// Current temperature index selected in the UI
   int get selectedTemperature => _selection?.selectedTemperature ?? 0;
+
+  /// Current waveform mode selected in the UI
   WaveformMode get selectedMode =>
       _selection?.selectedMode ?? WaveformMode.gc16;
 
+  /// Current scroll offset for the hex viewer
   int get hexViewOffset => _selection?.hexViewOffset ?? 0;
+
+  /// Number of bytes displayed per row in the hex viewer
   int get hexViewBytesPerRow => _selection?.hexViewBytesPerRow ?? 16;
 
   /// Called by ProxyProvider when SelectionProvider updates
@@ -146,7 +166,7 @@ class WaveformProvider extends ChangeNotifier {
       return;
     }
 
-    List<VoltageLevel> rawSequence = [];
+    var rawSequence = <VoltageLevel>[];
 
     // Try to decode the actual waveform data
     if (_currentFile!.format == WaveformFormat.pvi &&

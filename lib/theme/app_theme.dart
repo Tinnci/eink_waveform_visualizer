@@ -136,10 +136,10 @@ class AppTheme {
   /// Calculates the contrast ratio between two colors.
   /// Returns a value between 1.0 and 21.0.
   static double getContrastRatio(Color color1, Color color2) {
-    final double l1 = color1.computeLuminance();
-    final double l2 = color2.computeLuminance();
-    final double brightest = l1 > l2 ? l1 : l2;
-    final double darkest = l1 > l2 ? l2 : l1;
+    final l1 = color1.computeLuminance();
+    final l2 = color2.computeLuminance();
+    final brightest = l1 > l2 ? l1 : l2;
+    final darkest = l1 > l2 ? l2 : l1;
     return (brightest + 0.05) / (darkest + 0.05);
   }
 

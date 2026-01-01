@@ -107,7 +107,7 @@ class ControlPanel extends StatelessWidget {
   Widget _buildGrayLevelControl({
     required String label,
     required int value,
-    required Function(int)? onChanged,
+    required void Function(int)? onChanged,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

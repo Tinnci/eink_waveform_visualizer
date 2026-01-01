@@ -8,7 +8,7 @@ class HexViewer extends StatefulWidget {
   final Uint8List data;
   final int bytesPerRow;
   final int offset;
-  final Function(int)? onOffsetChanged;
+  final void Function(int)? onOffsetChanged;
   final Set<int>? highlightedBytes;
 
   const HexViewer({

@@ -12,27 +12,27 @@ class OpticalSimulator {
   }) {
     if (sequence.isEmpty) return [];
 
-    final List<double> results = [];
-    double currentPosition =
+    final results = <double>[];
+    var currentPosition =
         initialReflectance; // 0.0 (Black electrode) to 1.0 (White electrode)
 
     // Physical constants (simplified)
     // In a real device, these would be tuned per panel batch.
-    const double baseMobility = 0.05; // How fast particles move at room temp
+    const baseMobility = 0.05; // How fast particles move at room temp
 
     // Viscosity adjustment based on temperature index
     // Higher index (usually higher temp) = lower viscosity = higher mobility.
     // Assuming temp index 0 is ~0°C and index 10 is ~50°C.
-    final double mobility = baseMobility * (1.0 + (temperatureIndex * 0.15));
+    final mobility = baseMobility * (1.0 + (temperatureIndex * 0.15));
 
     for (var voltage in sequence) {
-      double v = 0.0;
+      var v = 0.0;
       if (voltage == VoltageLevel.positive) v = 1.0;
       if (voltage == VoltageLevel.negative) v = -1;
 
       // Calculate delta position
       // Particles move towards white (pos) or black (neg)
-      double delta = v * mobility;
+      var delta = v * mobility;
 
       // Non-linear boundary effects: movement slows down as particles hit "walls"
       if (delta > 0) {

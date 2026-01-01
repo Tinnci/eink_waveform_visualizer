@@ -11,7 +11,10 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   static void showAbout(BuildContext context) {
-    showDialog(context: context, builder: (context) => const _AboutDialog());
+    showDialog<void>(
+      context: context,
+      builder: (context) => const _AboutDialog(),
+    );
   }
 
   @override
@@ -41,10 +44,10 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: AppTheme.surfaceDark,
       appBar: _HomeAppBar(currentFile: provider.currentFile),
       drawer: isNarrow
-          ? Drawer(
+          ? const Drawer(
               width: 300,
               backgroundColor: AppTheme.primaryDark,
-              child: const SafeArea(child: _HomeSidebar()),
+              child: SafeArea(child: _HomeSidebar()),
             )
           : null,
       body: Row(
