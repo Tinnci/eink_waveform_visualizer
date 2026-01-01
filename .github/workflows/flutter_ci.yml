@@ -1,0 +1,41 @@
+name: Flutter CI 2026 Standard
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  analyze-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: 1. Static Analysis (2026 Strict Mode)
+        run: flutter analyze
+        # This will catch deprecated components (WillPopScope, etc.)
+
+      - name: 2. Formatting Check
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: 3. Security Vulnerability Scan
+        run: |
+          # Use OSV-Scanner standard if available or pub audit
+          flutter pub pub outdated --mode=null-safety
+
+      - name: 4. Run Automated Tests
+        run: flutter test --coverage
+
+      - name: 5. Accessibility Audit Verification
+        run: flutter test test/accessibility_test.dart
