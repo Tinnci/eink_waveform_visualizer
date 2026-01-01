@@ -44,6 +44,8 @@ dependencies:
   # Google Fonts for better typography
   google_fonts: ^6.2.1
 
+
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -15,59 +15,146 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedTab = 0;
+  bool _isSidebarVisible = true;
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<WaveformProvider>();
 
     return Scaffold(
-      body: Column(
-        children: [
-          _buildAppBar(provider),
-          Expanded(
-            child: Row(
-              children: [
-                // Left sidebar - File info and controls
-                SizedBox(
-                  width: 280,
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      children: [
-                        const FileInfoPanel(),
-                        const SizedBox(height: 12),
-                        const Expanded(child: ControlPanel()),
-                      ],
-                    ),
-                  ),
-                ),
-
-                // Main content area
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 12, 12, 12),
-                    child: Column(
-                      children: [
-                        // Tab bar
-                        _buildTabBar(),
-                        const SizedBox(height: 12),
-                        // Content
-                        Expanded(child: _buildTabContent(provider)),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+      backgroundColor: AppTheme.surfaceDark,
+      appBar: AppBar(
+        backgroundColor: AppTheme.surfaceDark,
+        elevation: 0,
+        title: Row(
+          children: [
+            const Icon(Icons.waves, color: AppTheme.accentGreen, size: 20),
+            const SizedBox(width: 8),
+            const Text(
+              'E-Ink Waveform Visualizer',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.textPrimary,
+              ),
             ),
-          ),
+            if (provider.currentFile != null) ...[
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppTheme.cardDark,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  provider.currentFile!.fileName,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: AppTheme.textSecondary,
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: AppTheme.borderDark, height: 1),
+        ),
+      ),
+      body: Row(
+        children: [
+          _buildNavigationRail(),
+          const VerticalDivider(width: 1),
+          if (_isSidebarVisible) SizedBox(width: 280, child: _buildSidebar()),
+          if (_isSidebarVisible) const VerticalDivider(width: 1),
+          Expanded(child: _buildMainContent(provider)),
         ],
       ),
     );
   }
 
-  Widget _buildAppBar(WaveformProvider provider) {
+  Widget _buildNavigationRail() {
+    return NavigationRail(
+      selectedIndex: _selectedTab,
+      onDestinationSelected: (index) => setState(() => _selectedTab = index),
+      backgroundColor: AppTheme.surfaceDark,
+      labelType: NavigationRailLabelType.none,
+      leading: Column(
+        children: [
+          IconButton(
+            icon: Icon(
+              _isSidebarVisible ? Icons.menu_open : Icons.menu,
+              color: AppTheme.textSecondary,
+            ),
+            onPressed: () =>
+                setState(() => _isSidebarVisible = !_isSidebarVisible),
+          ),
+          const SizedBox(height: 8),
+        ],
+      ),
+      destinations: const [
+        NavigationRailDestination(
+          icon: Icon(Icons.show_chart_outlined),
+          selectedIcon: Icon(Icons.show_chart, color: AppTheme.accentGreen),
+          label: Text('Waveform'),
+        ),
+        NavigationRailDestination(
+          icon: Icon(Icons.code_outlined),
+          selectedIcon: Icon(Icons.code, color: AppTheme.accentGreen),
+          label: Text('Hex'),
+        ),
+        NavigationRailDestination(
+          icon: Icon(Icons.table_chart_outlined),
+          selectedIcon: Icon(Icons.table_chart, color: AppTheme.accentPurple),
+          label: Text('Matrix'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSidebar() {
     return Container(
-      height: 56,
+      color: AppTheme.primaryDark,
+      child: const Padding(
+        padding: EdgeInsets.all(12),
+        child: Column(
+          children: [
+            FileInfoPanel(),
+            SizedBox(height: 12),
+            Expanded(child: ControlPanel()),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMainContent(WaveformProvider provider) {
+    return Column(
+      children: [
+        _buildToolBar(provider),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: _buildTabContent(provider),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildToolBar(WaveformProvider provider) {
+    return Container(
+      height: 48,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: const BoxDecoration(
         color: AppTheme.surfaceDark,
@@ -75,108 +162,28 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       child: Row(
         children: [
-          // Logo and title
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  AppTheme.accentGreen.withValues(alpha: 0.2),
-                  AppTheme.accentBlue.withValues(alpha: 0.2),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(
-              Icons.waves,
-              color: AppTheme.accentGreen,
-              size: 24,
-            ),
-          ),
-          const SizedBox(width: 12),
-          const Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'E-Ink Waveform Visualizer',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.textPrimary,
-                ),
-              ),
-              Text(
-                'PVI & RKF Format Parser',
-                style: TextStyle(fontSize: 11, color: AppTheme.textMuted),
-              ),
-            ],
+          Text(
+            _getTabTitle(),
+            style: const TextStyle(fontWeight: FontWeight.w600),
           ),
           const Spacer(),
-
-          // Status indicator
           if (provider.isLoading)
             const SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: AppTheme.accentGreen,
-              ),
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(strokeWidth: 2),
             ),
-
-          // Error indicator
-          if (provider.error != null)
-            Tooltip(
-              message: provider.error!,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: AppTheme.accentRed.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(
-                    color: AppTheme.accentRed.withValues(alpha: 0.3),
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.warning_amber,
-                      size: 16,
-                      color: AppTheme.accentRed,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Warning',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppTheme.accentRed.withValues(alpha: 0.9),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
           const SizedBox(width: 16),
-
-          // Export button
-          _buildToolbarButton(
-            icon: Icons.download,
-            label: 'Export',
-            onPressed: () => _exportWaveform(context, provider),
-          ),
-          const SizedBox(width: 8),
-
-          // Open file button
           _buildToolbarButton(
             icon: Icons.folder_open,
             label: 'Open',
             onPressed: provider.loadFile,
+          ),
+          const SizedBox(width: 8),
+          _buildToolbarButton(
+            icon: Icons.download,
+            label: 'Export',
+            onPressed: () => _exportWaveform(context, provider),
           ),
           const SizedBox(width: 8),
           _buildToolbarButton(
@@ -187,6 +194,19 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
+  }
+
+  String _getTabTitle() {
+    switch (_selectedTab) {
+      case 0:
+        return 'Waveform Analysis';
+      case 1:
+        return 'Binary Data Explorer';
+      case 2:
+        return 'Transition Matrix';
+      default:
+        return '';
+    }
   }
 
   Future<void> _exportWaveform(
@@ -236,62 +256,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTabBar() {
-    return Container(
-      height: 40,
-      decoration: BoxDecoration(
-        color: AppTheme.surfaceDark,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppTheme.borderDark),
-      ),
-      child: Row(
-        children: [
-          _buildTab(0, Icons.show_chart, 'Waveform'),
-          _buildTab(1, Icons.code, 'Hex View'),
-          _buildTab(2, Icons.table_chart, 'LUT Matrix'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTab(int index, IconData icon, String label) {
-    final isSelected = _selectedTab == index;
-    return Expanded(
-      child: InkWell(
-        onTap: () => setState(() => _selectedTab = index),
-        borderRadius: BorderRadius.circular(6),
-        child: Container(
-          margin: const EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            color: isSelected
-                ? AppTheme.accentGreen.withValues(alpha: 0.15)
-                : null,
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                size: 16,
-                color: isSelected ? AppTheme.accentGreen : AppTheme.textMuted,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                  color: isSelected ? AppTheme.accentGreen : AppTheme.textMuted,
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );
