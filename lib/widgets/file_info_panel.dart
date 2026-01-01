@@ -225,26 +225,19 @@ class FileInfoPanel extends StatelessWidget {
                 style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
               ),
               const SizedBox(height: 16),
-              Semantics(
-                button: true,
-                label: 'Browse for waveform files',
-                onTap: provider.loadFile,
-                child: Container(
+              FilledButton.icon(
+                onPressed: provider.loadFile,
+                icon: const Icon(Icons.folder_open),
+                label: const Text('Browse Files'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppTheme.accentBlue,
+                  foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 24,
                     vertical: 12,
                   ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.accentBlue,
+                  shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Text(
-                    'Browse Files',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
                   ),
                 ),
               ),

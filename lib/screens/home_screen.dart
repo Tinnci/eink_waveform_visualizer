@@ -594,76 +594,81 @@ class _MatrixGrid extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Expanded(
-          child: ListView.builder(
-            itemCount: 16,
-            itemBuilder: (context, fromGray) {
-              return Row(
-                children: [
-                  SizedBox(
-                    width: 40,
-                    child: Center(
-                      child: Text(
-                        fromGray.toString(),
-                        style: const TextStyle(
-                          fontSize: 10,
-                          color: AppTheme.textMuted,
-                        ),
-                      ),
-                    ),
-                  ),
-                  ...List.generate(16, (toGray) {
-                    final isSelected =
-                        provider.selectedFromGray == fromGray &&
-                        provider.selectedToGray == toGray;
-
-                    final diff = (toGray - fromGray).abs();
-                    final color = Color.lerp(
-                      AppTheme.surfaceDark,
-                      AppTheme.accentGreen,
-                      diff / 15,
-                    )!;
-
-                    return Expanded(
-                      child: Semantics(
-                        label: 'Transition from Gray $fromGray to $toGray',
-                        selected: isSelected,
-                        button: true,
-                        onTap: () {
-                          final selection = context.read<SelectionProvider>();
-                          selection.setFromGray(fromGray);
-                          selection.setToGray(toGray);
-                          onTransitionSelected();
-                        },
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () {
-                            final selection = context.read<SelectionProvider>();
-                            selection.setFromGray(fromGray);
-                            selection.setToGray(toGray);
-                            onTransitionSelected();
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.all(1),
-                            height:
-                                48, // 2026 Compliance: 48px minimum touch target
-                            decoration: BoxDecoration(
-                              color: color,
-                              borderRadius: BorderRadius.circular(4),
-                              border: isSelected
-                                  ? Border.all(
-                                      color: AppTheme.accentGreen,
-                                      width: 2,
-                                    )
-                                  : null,
+          child: CustomScrollView(
+            slivers: [
+              SliverList(
+                delegate: SliverChildBuilderDelegate((context, fromGray) {
+                  return Row(
+                    children: [
+                      SizedBox(
+                        width: 40,
+                        child: Center(
+                          child: Text(
+                            fromGray.toString(),
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: AppTheme.textMuted,
                             ),
                           ),
                         ),
                       ),
-                    );
-                  }),
-                ],
-              );
-            },
+                      ...List.generate(16, (toGray) {
+                        final isSelected =
+                            provider.selectedFromGray == fromGray &&
+                            provider.selectedToGray == toGray;
+
+                        final diff = (toGray - fromGray).abs();
+                        final color = Color.lerp(
+                          AppTheme.surfaceDark,
+                          AppTheme.accentGreen,
+                          diff / 15,
+                        )!;
+
+                        return Expanded(
+                          child: Semantics(
+                            label: 'Transition from Gray $fromGray to $toGray',
+                            selected: isSelected,
+                            button: true,
+                            onTap: () {
+                              final selection = context
+                                  .read<SelectionProvider>();
+                              selection.setFromGray(fromGray);
+                              selection.setToGray(toGray);
+                              onTransitionSelected();
+                            },
+                            child: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () {
+                                final selection = context
+                                    .read<SelectionProvider>();
+                                selection.setFromGray(fromGray);
+                                selection.setToGray(toGray);
+                                onTransitionSelected();
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.all(1),
+                                height:
+                                    48, // 2026 Compliance: 48px minimum touch target
+                                decoration: BoxDecoration(
+                                  color: color,
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: isSelected
+                                      ? Border.all(
+                                          color: AppTheme.accentGreen,
+                                          width: 2,
+                                        )
+                                      : null,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                    ],
+                  );
+                }, childCount: 16),
+              ),
+            ],
           ),
         ),
         const SizedBox(height: 8),

@@ -203,47 +203,27 @@ class ControlPanel extends StatelessWidget {
       WaveformMode.glr16,
     ];
 
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: modes.map((mode) {
-        final isSelected = provider.selectedMode == mode;
+    return SegmentedButton<WaveformMode>(
+      segments: modes.map((mode) {
         final isSupported =
             provider.currentFile?.supportedModes.contains(mode) ?? true;
-
-        return Tooltip(
-          message: mode.description,
-          child: Semantics(
-            button: true,
-            selected: isSelected,
-            enabled: provider.hasFile && isSupported,
-            label: 'Select Mode: ${mode.shortName}',
-            child: ChoiceChip(
-              label: Text(mode.shortName),
-              selected: isSelected,
-              onSelected: provider.hasFile && isSupported
-                  ? (_) => selection.setMode(mode)
-                  : null,
-              selectedColor: AppTheme.accentGreen.withValues(alpha: 0.2),
-              backgroundColor: AppTheme.surfaceDark,
-              labelStyle: TextStyle(
-                color: isSelected
-                    ? AppTheme.accentGreen
-                    : isSupported
-                    ? AppTheme.textSecondary
-                    : AppTheme.textMuted,
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-              ),
-              side: BorderSide(
-                color: isSelected ? AppTheme.accentGreen : AppTheme.borderDark,
-              ),
-              showCheckmark: false,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            ),
-          ),
+        return ButtonSegment<WaveformMode>(
+          value: mode,
+          label: Text(mode.shortName),
+          tooltip: mode.description,
+          enabled: provider.hasFile && isSupported,
         );
       }).toList(),
+      selected: {provider.selectedMode},
+      onSelectionChanged: (newSelection) {
+        selection.setMode(newSelection.first);
+      },
+      showSelectedIcon: false,
+      style: SegmentedButton.styleFrom(
+        selectedBackgroundColor: AppTheme.accentGreen.withValues(alpha: 0.2),
+        selectedForegroundColor: AppTheme.accentGreen,
+        visualDensity: VisualDensity.compact,
+      ),
     );
   }
 

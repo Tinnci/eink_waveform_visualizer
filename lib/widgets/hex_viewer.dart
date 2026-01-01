@@ -155,13 +155,16 @@ class _HexViewerState extends State<HexViewer> {
         child: Scrollbar(
           controller: _scrollController,
           thumbVisibility: true,
-          child: ListView.builder(
+          child: CustomScrollView(
             controller: _scrollController,
-            itemCount: rowCount,
-            itemExtent: dynamicRowHeight,
-            itemBuilder: (context, index) {
-              return RepaintBoundary(child: _buildHexRow(index));
-            },
+            slivers: [
+              SliverFixedExtentList(
+                itemExtent: dynamicRowHeight,
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  return RepaintBoundary(child: _buildHexRow(index));
+                }, childCount: rowCount),
+              ),
+            ],
           ),
         ),
       ),
