@@ -49,7 +49,8 @@ class _WaveformChartState extends State<WaveformChart>
     return Consumer<WaveformProvider>(
       builder: (context, provider, child) {
         // Animate when sequence changes
-        if (provider.currentSequence.isNotEmpty) {
+        if (provider.currentSequence != null &&
+            provider.currentSequence!.data.isNotEmpty) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (!_animationController.isAnimating &&
                 _animationController.value == 0) {
@@ -179,7 +180,7 @@ class _WaveformChartState extends State<WaveformChart>
             ),
             child: CustomPaint(
               painter: WaveformPainter(
-                voltages: provider.currentSequence,
+                voltages: provider.currentSequence?.data ?? [],
                 animationProgress: _animation.value,
                 showGrid: _showGrid,
                 showLabels: _showLabels,

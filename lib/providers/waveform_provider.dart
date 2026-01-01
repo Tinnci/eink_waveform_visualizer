@@ -5,23 +5,21 @@ import 'package:flutter/foundation.dart';
 
 import '../models/models.dart';
 import '../services/services.dart';
+import 'selection_provider.dart';
 
-/// Provider for managing waveform file state
+/// Provider for managing waveform file state and processing logic.
+/// It depends on [SelectionProvider] to know which transition to visualize.
 class WaveformProvider extends ChangeNotifier {
   WaveformFile? _currentFile;
   bool _isLoading = false;
   String? _error;
 
-  // Visualization state
-  int _selectedFromGray = 0;
-  int _selectedToGray = 15;
-  int _selectedTemperature = 0;
-  WaveformMode _selectedMode = WaveformMode.gc16;
-  List<VoltageLevel> _currentSequence = [];
+  // Visualized sequence (Output)
+  // Now uses the mutable WaveformSequence model
+  WaveformSequence? _currentSequence;
 
-  // Hex viewer state
-  int _hexViewOffset = 0;
-  final int _hexViewBytesPerRow = 16;
+  // Dependency injected via ProxyProvider
+  SelectionProvider? _selection;
 
   // Getters
   WaveformFile? get currentFile => _currentFile;
@@ -29,14 +27,28 @@ class WaveformProvider extends ChangeNotifier {
   String? get error => _error;
   bool get hasFile => _currentFile != null;
 
-  int get selectedFromGray => _selectedFromGray;
-  int get selectedToGray => _selectedToGray;
-  int get selectedTemperature => _selectedTemperature;
-  WaveformMode get selectedMode => _selectedMode;
-  List<VoltageLevel> get currentSequence => _currentSequence;
+  WaveformSequence? get currentSequence => _currentSequence;
 
-  int get hexViewOffset => _hexViewOffset;
-  int get hexViewBytesPerRow => _hexViewBytesPerRow;
+  // Shortcuts accessors for UI convenience (read-only)
+  // The UI should use SelectionProvider directly for writing.
+  int get selectedFromGray => _selection?.selectedFromGray ?? 0;
+  int get selectedToGray => _selection?.selectedToGray ?? 0;
+  int get selectedTemperature => _selection?.selectedTemperature ?? 0;
+  WaveformMode get selectedMode =>
+      _selection?.selectedMode ?? WaveformMode.gc16;
+
+  int get hexViewOffset => _selection?.hexViewOffset ?? 0;
+  int get hexViewBytesPerRow => _selection?.hexViewBytesPerRow ?? 16;
+
+  /// Called by ProxyProvider when SelectionProvider updates
+  void updateSelection(SelectionProvider selection) {
+    _selection = selection;
+    // Re-calculate sequence because selection params changed
+    _updateSequence();
+    // ProxyProvider's update triggers a rebuild of this provider, so we don't strictly
+    // need notifyListeners() here UNLESS the sequence output actually changed.
+    // _updateSequence() calls notifyListeners().
+  }
 
   /// Load a waveform file using file picker
   Future<void> loadFile() async {
@@ -100,7 +112,6 @@ class WaveformProvider extends ChangeNotifier {
       if (format == WaveformFormat.pvi) {
         _currentFile = WaveformParser.parsePviWaveform(bytes, fileName);
       } else if (format == WaveformFormat.rkf) {
-        // For now, create a basic file object for RKF
         _currentFile = WaveformFile(
           fileName: fileName,
           format: WaveformFormat.rkf,
@@ -110,11 +121,8 @@ class WaveformProvider extends ChangeNotifier {
         _error = 'RKF format detected - full parsing not yet implemented';
       }
 
-      // Reset visualization state
-      _selectedFromGray = 0;
-      _selectedToGray = 15;
-      _selectedTemperature = 0;
-      _hexViewOffset = 0;
+      // Reset selection via the injected provider if possible
+      _selection?.reset();
 
       // Update the voltage sequence
       _updateSequence();
@@ -130,10 +138,13 @@ class WaveformProvider extends ChangeNotifier {
 
   /// Update the current voltage sequence based on selected parameters
   void _updateSequence() {
-    if (_currentFile == null) {
-      _currentSequence = [];
+    if (_currentFile == null || _selection == null) {
+      _currentSequence = null;
+      notifyListeners();
       return;
     }
+
+    List<VoltageLevel> rawSequence = [];
 
     // Try to decode the actual waveform data
     if (_currentFile!.format == WaveformFormat.pvi &&
@@ -141,61 +152,33 @@ class WaveformProvider extends ChangeNotifier {
       final transition = WaveformParser.decodeTransition(
         data: _currentFile!.rawData,
         header: _currentFile!.pviHeader!,
-        fromGray: _selectedFromGray,
-        toGray: _selectedToGray,
-        temperatureIndex: _selectedTemperature,
-        mode: _selectedMode,
+        fromGray: _selection!.selectedFromGray,
+        toGray: _selection!.selectedToGray,
+        temperatureIndex: _selection!.selectedTemperature,
+        mode: _selection!.selectedMode,
       );
 
       if (transition != null && transition.voltageSequence.isNotEmpty) {
-        _currentSequence = transition.voltageSequence;
-        return;
+        rawSequence = transition.voltageSequence;
       }
     }
 
-    // Fall back to sample sequence for visualization
-    _currentSequence = WaveformParser.generateSampleSequence(
-      _selectedFromGray,
-      _selectedToGray,
+    // Fall back to sample sequence for visualization if empty
+    if (rawSequence.isEmpty) {
+      rawSequence = WaveformParser.generateSampleSequence(
+        _selection!.selectedFromGray,
+        _selection!.selectedToGray,
+      );
+    }
+
+    // Wrap in mutable model
+    _currentSequence = WaveformSequence(
+      data: rawSequence,
+      mode: _selection!.selectedMode,
+      temperatureIndex: _selection!.selectedTemperature,
+      fromGray: _selection!.selectedFromGray,
+      toGray: _selection!.selectedToGray,
     );
-  }
-
-  /// Set the from gray level
-  void setFromGray(int value) {
-    if (value == _selectedFromGray) return;
-    _selectedFromGray = value.clamp(0, 15);
-    _updateSequence();
-    notifyListeners();
-  }
-
-  /// Set the to gray level
-  void setToGray(int value) {
-    if (value == _selectedToGray) return;
-    _selectedToGray = value.clamp(0, 15);
-    _updateSequence();
-    notifyListeners();
-  }
-
-  /// Set the temperature index
-  void setTemperature(int value) {
-    if (value == _selectedTemperature) return;
-    _selectedTemperature = value;
-    _updateSequence();
-    notifyListeners();
-  }
-
-  /// Set the waveform mode
-  void setMode(WaveformMode mode) {
-    if (mode == _selectedMode) return;
-    _selectedMode = mode;
-    _updateSequence();
-    notifyListeners();
-  }
-
-  /// Set hex view offset
-  void setHexViewOffset(int offset) {
-    if (_currentFile == null) return;
-    _hexViewOffset = offset.clamp(0, _currentFile!.rawData.length);
     notifyListeners();
   }
 
@@ -203,14 +186,13 @@ class WaveformProvider extends ChangeNotifier {
   void clearFile() {
     _currentFile = null;
     _error = null;
-    _currentSequence = [];
-    _hexViewOffset = 0;
+    _currentSequence = null;
     notifyListeners();
   }
 
   /// Export current waveform sequence to CSV
   Future<String?> exportToCsv() async {
-    if (_currentSequence.isEmpty) {
+    if (_currentSequence == null || _currentSequence!.data.isEmpty) {
       _error = 'No waveform data to export';
       notifyListeners();
       return null;
@@ -218,11 +200,11 @@ class WaveformProvider extends ChangeNotifier {
 
     try {
       final result = await CsvExporter.exportSequence(
-        sequence: _currentSequence,
-        fromGray: _selectedFromGray,
-        toGray: _selectedToGray,
-        mode: _selectedMode,
-        temperature: _selectedTemperature,
+        sequence: _currentSequence!.data,
+        fromGray: _currentSequence!.fromGray,
+        toGray: _currentSequence!.toGray,
+        mode: _currentSequence!.mode,
+        temperature: _currentSequence!.temperatureIndex,
       );
 
       if (result != null) {

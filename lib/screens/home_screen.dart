@@ -304,7 +304,8 @@ class _HomeScreenState extends State<HomeScreen> {
             ? HexViewer(
                 data: provider.currentFile!.rawData,
                 offset: provider.hexViewOffset,
-                onOffsetChanged: provider.setHexViewOffset,
+                onOffsetChanged: (v) =>
+                    context.read<SelectionProvider>().setHexViewOffset(v),
               )
             : _buildEmptyHexView();
       case 2:
@@ -465,8 +466,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: GestureDetector(
                         behavior: HitTestBehavior.opaque,
                         onTap: () {
-                          provider.setFromGray(fromGray);
-                          provider.setToGray(toGray);
+                          final selection = context.read<SelectionProvider>();
+                          selection.setFromGray(fromGray);
+                          selection.setToGray(toGray);
                           setState(() => _selectedTab = 0);
                         },
                         child: Container(

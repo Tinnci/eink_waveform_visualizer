@@ -17,7 +17,14 @@ class WaveformVisualizerApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => WaveformProvider())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => SelectionProvider()),
+        ChangeNotifierProxyProvider<SelectionProvider, WaveformProvider>(
+          create: (_) => WaveformProvider(),
+          update: (_, selection, waveform) =>
+              waveform!..updateSelection(selection),
+        ),
+      ],
       child: MaterialApp(
         title: 'E-Ink Waveform Visualizer',
         debugShowCheckedModeBanner: false,

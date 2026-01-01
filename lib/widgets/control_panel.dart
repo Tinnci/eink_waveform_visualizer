@@ -11,8 +11,8 @@ class ControlPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<WaveformProvider>(
-      builder: (context, provider, child) {
+    return Consumer2<WaveformProvider, SelectionProvider>(
+      builder: (context, provider, selection, child) {
         return Card(
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -31,13 +31,17 @@ class ControlPanel extends StatelessWidget {
                   _buildGrayLevelControl(
                     label: 'From Gray Level',
                     value: provider.selectedFromGray,
-                    onChanged: provider.hasFile ? provider.setFromGray : null,
+                    onChanged: provider.hasFile
+                        ? (v) => selection.setFromGray(v)
+                        : null,
                   ),
                   const SizedBox(height: 12),
                   _buildGrayLevelControl(
                     label: 'To Gray Level',
                     value: provider.selectedToGray,
-                    onChanged: provider.hasFile ? provider.setToGray : null,
+                    onChanged: provider.hasFile
+                        ? (v) => selection.setToGray(v)
+                        : null,
                   ),
 
                   const SizedBox(height: 20),
@@ -51,7 +55,7 @@ class ControlPanel extends StatelessWidget {
                     color: AppTheme.accentOrange,
                   ),
                   const SizedBox(height: 12),
-                  _buildModeSelector(context, provider),
+                  _buildModeSelector(context, provider, selection),
 
                   const SizedBox(height: 20),
                   const Divider(height: 1),
@@ -64,7 +68,7 @@ class ControlPanel extends StatelessWidget {
                     color: AppTheme.accentCyan,
                   ),
                   const SizedBox(height: 12),
-                  _buildTemperatureControl(provider),
+                  _buildTemperatureControl(provider, selection),
 
                   const SizedBox(height: 20),
 
@@ -186,7 +190,11 @@ class ControlPanel extends StatelessWidget {
     );
   }
 
-  Widget _buildModeSelector(BuildContext context, WaveformProvider provider) {
+  Widget _buildModeSelector(
+    BuildContext context,
+    WaveformProvider provider,
+    SelectionProvider selection,
+  ) {
     final modes = [
       WaveformMode.gc16,
       WaveformMode.gl16,
@@ -209,7 +217,7 @@ class ControlPanel extends StatelessWidget {
             label: Text(mode.shortName),
             selected: isSelected,
             onSelected: provider.hasFile && isSupported
-                ? (_) => provider.setMode(mode)
+                ? (_) => selection.setMode(mode)
                 : null,
             selectedColor: AppTheme.accentGreen.withOpacity(0.2),
             backgroundColor: AppTheme.surfaceDark,
@@ -233,7 +241,10 @@ class ControlPanel extends StatelessWidget {
     );
   }
 
-  Widget _buildTemperatureControl(WaveformProvider provider) {
+  Widget _buildTemperatureControl(
+    WaveformProvider provider,
+    SelectionProvider selection,
+  ) {
     final tempRange = provider.currentFile?.temperatureRange;
     final minTemp = tempRange?.$1 ?? 0;
     final maxTemp = tempRange?.$2 ?? 50;
@@ -279,7 +290,7 @@ class ControlPanel extends StatelessWidget {
             max: (maxIndex - 1).clamp(1, 20).toDouble(),
             divisions: (maxIndex - 1).clamp(1, 20),
             onChanged: provider.hasFile
-                ? (v) => provider.setTemperature(v.round())
+                ? (v) => selection.setTemperature(v.round())
                 : null,
           ),
         ),
@@ -313,7 +324,7 @@ class ControlPanel extends StatelessWidget {
             children: [
               _buildInfoChip(
                 'Frames',
-                provider.currentSequence.length.toString(),
+                (provider.currentSequence?.length ?? 0).toString(),
                 AppTheme.accentGreen,
               ),
               _buildInfoChip(
