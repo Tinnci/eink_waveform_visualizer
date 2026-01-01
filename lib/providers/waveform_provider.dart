@@ -49,9 +49,6 @@ class WaveformProvider extends ChangeNotifier {
     _selection = selection;
     // Re-calculate sequence because selection params changed
     _updateSequence();
-    // ProxyProvider's update triggers a rebuild of this provider, so we don't strictly
-    // need notifyListeners() here UNLESS the sequence output actually changed.
-    // _updateSequence() calls notifyListeners().
   }
 
   /// Load a waveform file using file picker
@@ -185,18 +182,41 @@ class WaveformProvider extends ChangeNotifier {
       toGray: _selection!.selectedToGray,
     );
 
-    // Run Optical Simulation
-    // Assuming Gray 0 = Black, Gray 15 = White.
-    // Initial reflectance is normalized (0.0 - 1.0)
+    _runSimulation();
+    notifyListeners();
+  }
+
+  /// Update voltage for a specific frame (Editor mode)
+  void updateVoltageAt(int index, VoltageLevel newLevel) {
+    if (_currentSequence == null ||
+        index < 0 ||
+        index >= _currentSequence!.length) {
+      return;
+    }
+
+    _currentSequence!.updateVoltage(index, newLevel);
+
+    // Re-run simulation since data changed
+    _runSimulation();
+
+    notifyListeners();
+  }
+
+  /// Run the optical simulation based on current sequence
+  void _runSimulation() {
+    if (_currentSequence == null || _selection == null) {
+      _simulationResult = [];
+      return;
+    }
+
+    // Assuming Gray 0 = Black, Gray 15 = White
     final initialReflectance = _selection!.selectedFromGray / 15.0;
 
     _simulationResult = OpticalSimulator.simulate(
-      sequence: rawSequence,
+      sequence: _currentSequence!.data,
       temperatureIndex: _selection!.selectedTemperature,
       initialReflectance: initialReflectance,
     );
-
-    notifyListeners();
   }
 
   /// Clear the current file
@@ -204,6 +224,7 @@ class WaveformProvider extends ChangeNotifier {
     _currentFile = null;
     _error = null;
     _currentSequence = null;
+    _simulationResult = [];
     notifyListeners();
   }
 
@@ -222,6 +243,7 @@ class WaveformProvider extends ChangeNotifier {
         toGray: _currentSequence!.toGray,
         mode: _currentSequence!.mode,
         temperature: _currentSequence!.temperatureIndex,
+        simulationData: _simulationResult,
       );
 
       if (result != null) {

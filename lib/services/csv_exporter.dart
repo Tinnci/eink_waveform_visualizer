@@ -13,6 +13,7 @@ class CsvExporter {
     required int toGray,
     required WaveformMode mode,
     required int temperature,
+    List<double>? simulationData,
   }) async {
     if (sequence.isEmpty) return null;
 
@@ -27,13 +28,17 @@ class CsvExporter {
     buffer.writeln('# Temperature Index: $temperature');
     buffer.writeln('# Total Frames: ${sequence.length}');
     buffer.writeln('#');
-    buffer.writeln('Frame,Voltage,Code,Description');
+    buffer.writeln('Frame,Voltage,Code,Description,SimulatedLightness');
 
     // Data rows
     for (var i = 0; i < sequence.length; i++) {
       final voltage = sequence[i];
+      final reflectance = (simulationData != null && i < simulationData.length)
+          ? simulationData[i].toStringAsFixed(4)
+          : '';
+
       buffer.writeln(
-        '${i + 1},${voltage.voltage ?? 0},${voltage.code},${voltage.label}',
+        '${i + 1},${voltage.voltage ?? 0},${voltage.code},${voltage.label},$reflectance',
       );
     }
 

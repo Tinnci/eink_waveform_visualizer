@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/providers.dart';
+import '../../models/models.dart';
 import '../../theme/app_theme.dart';
 import 'waveform_painter.dart';
 
@@ -173,29 +174,43 @@ class _WaveformChartState extends State<WaveformChart>
       builder: (context, child) {
         return Padding(
           padding: const EdgeInsets.all(16),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              minHeight: 200,
-              minWidth: double.infinity,
-            ),
-            child: Stack(
-              children: [
-                CustomPaint(
-                  painter: WaveformPainter(
-                    voltages: provider.currentSequence?.data ?? [],
-                    animationProgress: _animation.value,
-                    showGrid: _showGrid,
-                    showLabels: _showLabels,
-                  ),
-                  child: const SizedBox.expand(),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return ConstrainedBox(
+                constraints: const BoxConstraints(
+                  minHeight: 200,
+                  minWidth: double.infinity,
                 ),
-                Positioned(
-                  top: 0,
-                  right: 0,
-                  child: _buildVirtualPixelPreview(provider),
+                child: Stack(
+                  children: [
+                    GestureDetector(
+                      onTapUp: (details) => _handleChartTap(
+                        details,
+                        provider,
+                        constraints.maxWidth,
+                        constraints.maxHeight < 200
+                            ? 200
+                            : constraints.maxHeight,
+                      ),
+                      child: CustomPaint(
+                        size: Size(constraints.maxWidth, constraints.maxHeight),
+                        painter: WaveformPainter(
+                          voltages: provider.currentSequence?.data ?? [],
+                          animationProgress: _animation.value,
+                          showGrid: _showGrid,
+                          showLabels: _showLabels,
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 0,
+                      right: 0,
+                      child: _buildVirtualPixelPreview(provider),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              );
+            },
           ),
         );
       },
@@ -302,5 +317,58 @@ class _WaveformChartState extends State<WaveformChart>
         ],
       ),
     );
+  }
+
+  void _handleChartTap(
+    TapUpDetails details,
+    WaveformProvider provider,
+    double width,
+    double height,
+  ) {
+    if (provider.currentSequence == null ||
+        provider.currentSequence!.data.isEmpty) {
+      return;
+    }
+
+    final sequence = provider.currentSequence!.data;
+
+    // Layout logic must match WaveformPainter to be accurate
+    const paddingLeft = 60.0;
+    const paddingRight = 30.0;
+
+    final plotWidth = width - paddingLeft - paddingRight;
+    if (plotWidth <= 0) return;
+
+    final dx = details.localPosition.dx;
+
+    // Check if click is within the horizontal plot area
+    if (dx < paddingLeft || dx > width - paddingRight) return;
+
+    // Calculate frame index
+    // relativeX represents 0.0 to 1.0 within the plot area
+    final relativeX = (dx - paddingLeft) / plotWidth;
+    final index = (relativeX * sequence.length).floor();
+
+    if (index >= 0 && index < sequence.length) {
+      final currentVoltage = sequence[index];
+      VoltageLevel nextVoltage;
+
+      // Toggle cycle: 0V -> +15V -> -15V -> 0V
+      switch (currentVoltage) {
+        case VoltageLevel.zero:
+        case VoltageLevel.hold:
+          nextVoltage = VoltageLevel.positive;
+          break;
+        case VoltageLevel.positive:
+          nextVoltage = VoltageLevel.negative;
+          break;
+        case VoltageLevel.negative:
+          nextVoltage = VoltageLevel.zero;
+          break;
+      }
+
+      // Update via provider
+      provider.updateVoltageAt(index, nextVoltage);
+    }
   }
 }
