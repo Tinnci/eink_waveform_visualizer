@@ -62,15 +62,15 @@ class _HexViewerState extends State<HexViewer> {
 
   Widget _buildHeader() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Row(
         children: [
-          const Icon(Icons.code, color: AppTheme.accentBlue, size: 20),
+          const Icon(Icons.code, color: AppTheme.accentBlue, size: 18),
           const SizedBox(width: 8),
           const Text(
             'Hex Viewer',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 14,
               fontWeight: FontWeight.w600,
               color: AppTheme.textPrimary,
             ),
@@ -79,15 +79,15 @@ class _HexViewerState extends State<HexViewer> {
           // Offset input
           const Text(
             'Offset: ',
-            style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+            style: TextStyle(fontSize: 11, color: AppTheme.textSecondary),
           ),
           SizedBox(
-            width: 100,
-            height: 28,
+            width: 90,
+            height: 24,
             child: TextField(
               controller: _offsetController,
               style: const TextStyle(
-                fontSize: 12,
+                fontSize: 11,
                 fontFamily: 'monospace',
                 color: AppTheme.textPrimary,
               ),
@@ -113,12 +113,12 @@ class _HexViewerState extends State<HexViewer> {
           ),
           const SizedBox(width: 8),
           IconButton(
-            icon: const Icon(Icons.arrow_upward, size: 18),
+            icon: const Icon(Icons.arrow_upward, size: 16),
             tooltip: 'Go to start',
             onPressed: () => _goToOffset('0'),
             color: AppTheme.textSecondary,
-            iconSize: 18,
-            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            iconSize: 16,
+            constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
             padding: EdgeInsets.zero,
           ),
         ],
@@ -141,8 +141,8 @@ class _HexViewerState extends State<HexViewer> {
     return DefaultTextStyle(
       style: const TextStyle(
         fontFamily: 'monospace',
-        fontSize: 12,
-        height: 1.6,
+        fontSize: 11,
+        height: 1.4,
       ),
       child: Scrollbar(
         controller: _scrollController,
@@ -150,7 +150,7 @@ class _HexViewerState extends State<HexViewer> {
         child: ListView.builder(
           controller: _scrollController,
           itemCount: rowCount,
-          itemExtent: 24,
+          itemExtent: 20,
           itemBuilder: (context, index) {
             return _buildHexRow(index);
           },
@@ -168,21 +168,21 @@ class _HexViewerState extends State<HexViewer> {
     final rowBytes = widget.data.sublist(startOffset, endOffset);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Row(
         children: [
           // Offset column
           SizedBox(
-            width: 70,
+            width: 60,
             child: Text(
               startOffset.toRadixString(16).padLeft(8, '0').toUpperCase(),
               style: const TextStyle(color: AppTheme.textMuted),
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 12),
           // Hex bytes
           Expanded(flex: 3, child: _buildHexBytes(rowBytes, startOffset)),
-          const SizedBox(width: 16),
+          const SizedBox(width: 12),
           // ASCII representation
           Expanded(
             flex: 1,
@@ -210,7 +210,7 @@ class _HexViewerState extends State<HexViewer> {
           onEnter: (_) => setState(() => _hoveredByte = byteOffset),
           onExit: (_) => setState(() => _hoveredByte = -1),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 2),
+            padding: const EdgeInsets.symmetric(horizontal: 1),
             decoration: BoxDecoration(
               color: isHovered
                   ? AppTheme.accentBlue.withValues(alpha: 0.2)
@@ -233,9 +233,9 @@ class _HexViewerState extends State<HexViewer> {
 
       // Add separator every 8 bytes
       if ((i + 1) % 8 == 0 && i < bytes.length - 1) {
-        widgets.add(const SizedBox(width: 8));
+        widgets.add(const SizedBox(width: 6));
       } else if (i < bytes.length - 1) {
-        widgets.add(const SizedBox(width: 4));
+        widgets.add(const SizedBox(width: 3));
       }
     }
 
@@ -243,9 +243,9 @@ class _HexViewerState extends State<HexViewer> {
     for (var i = bytes.length; i < widget.bytesPerRow; i++) {
       widgets.add(const SizedBox(width: 20, child: Text('  ')));
       if ((i + 1) % 8 == 0 && i < widget.bytesPerRow - 1) {
-        widgets.add(const SizedBox(width: 8));
+        widgets.add(const SizedBox(width: 6));
       } else if (i < widget.bytesPerRow - 1) {
-        widgets.add(const SizedBox(width: 4));
+        widgets.add(const SizedBox(width: 3));
       }
     }
 
@@ -279,20 +279,20 @@ class _HexViewerState extends State<HexViewer> {
 
   Widget _buildFooter() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       child: Row(
         children: [
           _buildLegendItem(AppTheme.textMuted, 'Null (0x00)'),
-          const SizedBox(width: 16),
+          const SizedBox(width: 12),
           _buildLegendItem(AppTheme.accentRed, 'End (0xFF)'),
-          const SizedBox(width: 16),
+          const SizedBox(width: 12),
           _buildLegendItem(AppTheme.accentOrange, 'Special (0xFC)'),
-          const SizedBox(width: 16),
+          const SizedBox(width: 12),
           _buildLegendItem(AppTheme.accentGreen, 'Printable'),
           const Spacer(),
           Text(
             'Size: ${_formatSize(widget.data.length)}',
-            style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+            style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary),
           ),
         ],
       ),
