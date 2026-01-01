@@ -171,7 +171,7 @@ class ControlPanel extends StatelessWidget {
                   activeTrackColor: AppTheme.accentGreen,
                   inactiveTrackColor: AppTheme.borderDark,
                   thumbColor: AppTheme.accentGreen,
-                  overlayColor: AppTheme.accentGreen.withOpacity(0.2),
+                  overlayColor: AppTheme.accentGreen.withValues(alpha: 0.2),
                 ),
                 child: Slider(
                   value: value.toDouble(),
@@ -219,7 +219,7 @@ class ControlPanel extends StatelessWidget {
             onSelected: provider.hasFile && isSupported
                 ? (_) => selection.setMode(mode)
                 : null,
-            selectedColor: AppTheme.accentGreen.withOpacity(0.2),
+            selectedColor: AppTheme.accentGreen.withValues(alpha: 0.2),
             backgroundColor: AppTheme.surfaceDark,
             labelStyle: TextStyle(
               color: isSelected
@@ -282,7 +282,7 @@ class ControlPanel extends StatelessWidget {
             activeTrackColor: AppTheme.accentCyan,
             inactiveTrackColor: AppTheme.borderDark,
             thumbColor: AppTheme.accentCyan,
-            overlayColor: AppTheme.accentCyan.withOpacity(0.2),
+            overlayColor: AppTheme.accentCyan.withValues(alpha: 0.2),
           ),
           child: Slider(
             value: provider.selectedTemperature.toDouble(),
@@ -347,16 +347,16 @@ class ControlPanel extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             '$label: ',
-            style: TextStyle(fontSize: 11, color: color.withOpacity(0.8)),
+            style: TextStyle(fontSize: 11, color: color.withValues(alpha: 0.8)),
           ),
           Text(
             value,

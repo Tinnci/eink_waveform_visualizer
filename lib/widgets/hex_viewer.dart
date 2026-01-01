@@ -213,9 +213,9 @@ class _HexViewerState extends State<HexViewer> {
             padding: const EdgeInsets.symmetric(horizontal: 2),
             decoration: BoxDecoration(
               color: isHovered
-                  ? AppTheme.accentBlue.withOpacity(0.2)
+                  ? AppTheme.accentBlue.withValues(alpha: 0.2)
                   : isHighlighted
-                  ? AppTheme.accentOrange.withOpacity(0.2)
+                  ? AppTheme.accentOrange.withValues(alpha: 0.2)
                   : null,
               borderRadius: BorderRadius.circular(2),
             ),

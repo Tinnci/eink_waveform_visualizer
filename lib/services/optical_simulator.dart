@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import '../models/models.dart';
 
 /// Predicts the optical reflectance of an E-Ink pixel based on voltage sequences.

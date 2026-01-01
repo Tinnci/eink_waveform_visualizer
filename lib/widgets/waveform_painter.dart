@@ -180,7 +180,7 @@ class WaveformPainter extends CustomPainter {
 
     // Draw glow effect
     final glowPaint = Paint()
-      ..color = _getColorForVoltage(voltages.first).withOpacity(0.3)
+      ..color = _getColorForVoltage(voltages.first).withValues(alpha: 0.3)
       ..strokeWidth = 8
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
@@ -212,7 +212,7 @@ class WaveformPainter extends CustomPainter {
 
       // Draw outer ring
       final ringPaint = Paint()
-        ..color = color.withOpacity(0.3)
+        ..color = color.withValues(alpha: 0.3)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2;
       canvas.drawCircle(Offset(x, y), 6, ringPaint);

@@ -81,8 +81,8 @@ class _HomeScreenState extends State<HomeScreen> {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppTheme.accentGreen.withOpacity(0.2),
-                  AppTheme.accentBlue.withOpacity(0.2),
+                  AppTheme.accentGreen.withValues(alpha: 0.2),
+                  AppTheme.accentBlue.withValues(alpha: 0.2),
                 ],
               ),
               borderRadius: BorderRadius.circular(8),
@@ -135,10 +135,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: AppTheme.accentRed.withOpacity(0.1),
+                  color: AppTheme.accentRed.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(6),
                   border: Border.all(
-                    color: AppTheme.accentRed.withOpacity(0.3),
+                    color: AppTheme.accentRed.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Row(
@@ -154,7 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       'Warning',
                       style: TextStyle(
                         fontSize: 12,
-                        color: AppTheme.accentRed.withOpacity(0.9),
+                        color: AppTheme.accentRed.withValues(alpha: 0.9),
                       ),
                     ),
                   ],
@@ -268,7 +268,9 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Container(
           margin: const EdgeInsets.all(4),
           decoration: BoxDecoration(
-            color: isSelected ? AppTheme.accentGreen.withOpacity(0.15) : null,
+            color: isSelected
+                ? AppTheme.accentGreen.withValues(alpha: 0.15)
+                : null,
             borderRadius: BorderRadius.circular(6),
           ),
           child: Row(
@@ -324,7 +326,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Icon(
               Icons.code,
               size: 64,
-              color: AppTheme.textMuted.withOpacity(0.5),
+              color: AppTheme.textMuted.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
             const Text(
@@ -347,7 +349,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Icon(
                 Icons.table_chart,
                 size: 64,
-                color: AppTheme.textMuted.withOpacity(0.5),
+                color: AppTheme.textMuted.withValues(alpha: 0.5),
               ),
               const SizedBox(height: 16),
               const Text(
